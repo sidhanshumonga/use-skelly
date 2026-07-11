@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { Skelly } from "skelly/react";
+import BenchmarkRunner from "@/components/BenchmarkRunner";
 
 export default function Home() {
   // State for copy tooltips
@@ -741,6 +742,8 @@ release()`
             </span>
           </div>
         </div>
+
+        <BenchmarkRunner />
 
         <div style={{ display: "flex", gap: "40px", marginTop: "44px", flexWrap: "wrap" }}>
           <div>
