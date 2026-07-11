@@ -807,7 +807,6 @@ release()`
               {copiedFooter ? "copied!" : "copy"}
             </button>
           </div>
-          <div style={{ fontSize: "13px", color: "#8A8880" }}>also on pnpm, yarn, bun, deno</div>
         </div>
 
         <footer style={{

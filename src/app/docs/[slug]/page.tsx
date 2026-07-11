@@ -127,10 +127,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 padding: "18px 22px",
                 overflowX: "auto"
               }}>
-                <span style={{ color: "#8A8880", userSelect: "none" }}>$</span> npm i skelly<br />
-                <span style={{ color: "#8A8880", userSelect: "none" }}>$</span> pnpm add skelly<br />
-                <span style={{ color: "#8A8880", userSelect: "none" }}>$</span> yarn add skelly<br />
-                <span style={{ color: "#8A8880", userSelect: "none" }}>$</span> bun add skelly
+                <span style={{ color: "#8A8880", userSelect: "none" }}>$</span> npm i skelly
               </pre>
             </div>
             <p style={{ margin: 0 }}>
