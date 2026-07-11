@@ -84,19 +84,19 @@ export default function Navbar() {
         {pathname === "/" ? (
           <>
             <Link href="/docs" className="nav-link">Docs</Link>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="nav-link">GitHub ↗</a>
+            <a href="https://github.com/sidhanshumonga/use-skelly" target="_blank" rel="noopener noreferrer" className="nav-link">GitHub ↗</a>
             <Link href="/docs/installation" className="nav-btn">Get started</Link>
           </>
         ) : isDocs ? (
           <>
             <Link href="/" className="nav-link">Home</Link>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="nav-link">GitHub ↗</a>
+            <a href="https://github.com/sidhanshumonga/use-skelly" target="_blank" rel="noopener noreferrer" className="nav-link">GitHub ↗</a>
           </>
         ) : (
           <>
             <Link href="/" className="nav-link">Home</Link>
             <Link href="/docs" className="nav-link">Docs</Link>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="nav-link">GitHub ↗</a>
+            <a href="https://github.com/sidhanshumonga/use-skelly" target="_blank" rel="noopener noreferrer" className="nav-link">GitHub ↗</a>
           </>
         )}
       </div>

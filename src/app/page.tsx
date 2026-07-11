@@ -823,7 +823,7 @@ release()`
             <span>skelly — MIT license</span>
           </div>
           <div style={{ display: "flex", gap: "24px" }}>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "#8A8880" }}>
+            <a href="https://github.com/sidhanshumonga/use-skelly" target="_blank" rel="noopener noreferrer" style={{ color: "#8A8880" }}>
               GitHub
             </a>
             <Link href="/docs" style={{ color: "#8A8880" }}>
