@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { chapters, docCodeSnippets } from "@/data/docs";
 import PresetDemo from "@/components/PresetDemo";
+import type { Metadata } from "next";
 
 const CodeBlock = ({ filename, language, code }: { filename: string; language: string; code: string }) => (
   <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(28,28,26,.12)", margin: "16px 0 24px" }}>
@@ -33,6 +34,22 @@ const CodeBlock = ({ filename, language, code }: { filename: string; language: s
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const chapter = chapters.find((c) => c.slug === slug);
+  if (!chapter) return {};
+
+  return {
+    title: `${chapter.title} — skelly`,
+    description: chapter.intro,
+    openGraph: {
+      title: `${chapter.title} — skelly`,
+      description: chapter.intro,
+      url: `https://useskelly.dev/docs/${slug}`,
+    }
+  };
 }
 
 export async function generateStaticParams() {

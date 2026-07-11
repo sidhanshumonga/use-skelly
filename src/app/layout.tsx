@@ -16,8 +16,30 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "skelly — Skeletons that draw themselves.",
+  metadataBase: new URL("https://useskelly.dev"),
+  title: {
+    default: "skelly — Skeletons that draw themselves.",
+    template: "%s | skelly"
+  },
   description: "skelly reads your rendered UI and generates pixel-accurate loading states for it — components, pages, images, text, tables. Shimmer, pulse, or optimistic. On the server too.",
+  keywords: ["skeleton loader", "react loading state", "nextjs loading", "vue skeleton", "svelte loading", "layout shift", "CLS", "web performance", "RSC"],
+  openGraph: {
+    title: "skelly — Skeletons that draw themselves.",
+    description: "Generate pixel-accurate skeleton loaders from your real component markup layout automatically.",
+    url: "https://useskelly.dev",
+    siteName: "skelly",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "skelly — Skeletons that draw themselves.",
+    description: "Generate pixel-accurate skeleton loaders from your real component markup layout automatically.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
 };
 
 export default function RootLayout({
