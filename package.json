@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx tsc -p packages/skelly/tsconfig.json && mkdir -p packages/skelly/dist && cp packages/skelly/src/style.css packages/skelly/dist/style.css && next build",
     "start": "next start",
     "lint": "eslint"
   },
