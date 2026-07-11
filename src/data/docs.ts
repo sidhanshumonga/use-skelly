@@ -122,10 +122,66 @@ router.beforeEach(() => skellyPage('dashboard'))`,
 cd my-awesome-app
 npm run dev`,
   cliInitCode: `npx skelly init`,
-  presetsCode: `// Use dashboard preset layout
-<Skelly loading={true} preset="dashboard">
-  <DashboardComponent />
+  presetsCode: `// Use presets to scaffold layouts when children are undesigned or empty
+import { Skelly } from 'skelly/react';
+
+function Dashboard() {
+  return (
+    <Skelly loading={true} preset="dashboard">
+      <DashboardContent />
+    </Skelly>
+  );
+}
+
+// Available presets: 'dashboard' | 'article' | 'feed' | 'profile' | 'generic'`,
+  reactAdapterCode: `import { Skelly } from 'skelly/react';
+import 'skelly/style.css';
+
+function Profile({ isLoading, data }) {
+  return (
+    <Skelly loading={isLoading}>
+      <ProfileCard user={data} />
+    </Skelly>
+  );
+}`,
+  vueAdapterCode: `<!-- Using Custom Directive -->
+<div v-skelly="isLoading">
+  <profile-card :user="data" />
+</div>
+
+<!-- Using Wrapper Component -->
+<Skelly :loading="isLoading">
+  <profile-card :user="data" />
 </Skelly>
 
-// Available presets: 'dashboard' | 'article' | 'feed' | 'profile' | 'generic'`
+<script setup>
+import { vSkelly, Skelly } from 'skelly/vue';
+import 'skelly/style.css';
+</script>`,
+  svelteAdapterCode: `<script>
+  import { skelly, Skelly } from 'skelly/svelte';
+  import 'skelly/style.css';
+  export let isLoading = true;
+</script>
+
+<!-- Using Svelte Action -->
+<div use:skelly={{ loading: isLoading, visual: 'shimmer' }}>
+  <slot />
+</div>
+
+<!-- Using Wrapper Component -->
+<Skelly loading={isLoading}>
+  <slot />
+</Skelly>`,
+  vanillaAdapterCode: `import { skelly } from 'skelly';
+import 'skelly/style.css';
+
+const element = document.querySelector('.profile-container');
+const release = skelly(element, {
+  visual: 'shimmer',
+  rows: 4
+});
+
+// When loading is finished:
+release();`
 };

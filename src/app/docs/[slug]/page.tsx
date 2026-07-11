@@ -443,25 +443,37 @@ export default async function DocsChapterPage({ params }: PageProps) {
         )}
 
         {slug === "framework-adapters" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ display: "flex", gap: "16px", alignItems: "baseline", padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", fontWeight: 600, flex: "none", width: "140px" }}>skelly/react</span>
-              <span style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>&lt;Skelly&gt; component + useSkelly() hook. RSC-compatible.</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>React Adapter (skelly/react)</h3>
+              <p style={{ margin: 0 }}>
+                Includes the <code>&lt;Skelly&gt;</code> container wrapper, <code>&lt;Skelly.Suspense&gt;</code> boundaries, and the <code>useSkelly()</code> hook. RSC-compatible.
+              </p>
+              <CodeBlock filename="Profile.jsx" language="react" code={docCodeSnippets.reactAdapterCode} />
             </div>
 
-            <div style={{ display: "flex", gap: "16px", alignItems: "baseline", padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", fontWeight: 600, flex: "none", width: "140px" }}>skelly/vue</span>
-              <span style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>&lt;Skelly&gt; component + v-skelly directive.</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Vue Adapter (skelly/vue)</h3>
+              <p style={{ margin: 0 }}>
+                Provides the custom directive <code>v-skelly</code> and the <code>&lt;Skelly&gt;</code> wrapper component.
+              </p>
+              <CodeBlock filename="Profile.vue" language="html" code={docCodeSnippets.vueAdapterCode} />
             </div>
 
-            <div style={{ display: "flex", gap: "16px", alignItems: "baseline", padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", fontWeight: 600, flex: "none", width: "140px" }}>skelly/svelte</span>
-              <span style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>&lt;Skelly&gt; component + use:skelly action.</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Svelte Adapter (skelly/svelte)</h3>
+              <p style={{ margin: 0 }}>
+                Provides the Svelte action <code>use:skelly</code> and a Svelte container element wrapper component.
+              </p>
+              <CodeBlock filename="Profile.svelte" language="html" code={docCodeSnippets.svelteAdapterCode} />
             </div>
 
-            <div style={{ display: "flex", gap: "16px", alignItems: "baseline", padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", fontWeight: 600, flex: "none", width: "140px" }}>skelly</span>
-              <span style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>Vanilla core — works anywhere the DOM does.</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Vanilla JavaScript Core (skelly)</h3>
+              <p style={{ margin: 0 }}>
+                The core layout-measurement compiler. Works anywhere in the DOM.
+              </p>
+              <CodeBlock filename="app.js" language="js" code={docCodeSnippets.vanillaAdapterCode} />
             </div>
           </div>
         )}
