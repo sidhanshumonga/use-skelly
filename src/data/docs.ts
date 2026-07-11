@@ -64,6 +64,20 @@ export const chapters: DocChapter[] = [
     intro: "The complete surface: one function, a handful of options, one build-time helper."
   },
   {
+    slug: "cli",
+    key: "Cli",
+    section: "Reference",
+    title: "Skelly CLI",
+    intro: "Scaffold fresh templates or initialize Skelly within existing codebases with a single command."
+  },
+  {
+    slug: "presets",
+    key: "Presets",
+    section: "Guides",
+    title: "Generic presets",
+    intro: "Scaffold page layouts and preview skeletons before writing your visual components."
+  },
+  {
     slug: "framework-adapters",
     key: "Adapters",
     section: "Reference",
@@ -103,5 +117,15 @@ router.beforeEach(() => skellyPage('dashboard'))`,
   --skelly-highlight: #F5F4F0;
   --skelly-radius: 5px;
   --skelly-speed: 1.4s;
-}`
+}`,
+  cliCreateCode: `npx skelly create my-awesome-app --next
+cd my-awesome-app
+npm run dev`,
+  cliInitCode: `npx skelly init`,
+  presetsCode: `// Use dashboard preset layout
+<Skelly loading={true} preset="dashboard">
+  <DashboardComponent />
+</Skelly>
+
+// Available presets: 'dashboard' | 'article' | 'feed' | 'profile' | 'generic'`
 };

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { chapters, docCodeSnippets } from "@/data/docs";
+import PresetDemo from "@/components/PresetDemo";
 
 const CodeBlock = ({ filename, language, code }: { filename: string; language: string; code: string }) => (
   <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(28,28,26,.12)", margin: "16px 0 24px" }}>
@@ -405,6 +406,39 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 Build-time helper. Renders a route headlessly and emits its full-page skeleton spec.
               </div>
             </div>
+          </div>
+        )}
+
+        {slug === "presets" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
+            <p style={{ margin: 0 }}>
+              If a page is not yet designed or is empty during cold starts, you can render a pre-defined skeleton layout using Skelly presets. This allows developers to scaffold visual structures instantly.
+            </p>
+            <CodeBlock filename="Scaffold.jsx" language="react" code={docCodeSnippets.presetsCode} />
+            <p style={{ margin: 0 }}>
+              Try selecting a preset layout below to see how Skelly draws the loading state:
+            </p>
+            <PresetDemo />
+          </div>
+        )}
+
+        {slug === "cli" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
+            <p style={{ margin: 0 }}>
+              Skelly comes with a built-in zero-dependency command line interface to automate setting up skeleton layouts in React, Next.js, and Vite projects.
+            </p>
+            
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Scaffold a fresh project</h2>
+            <p style={{ margin: 0 }}>
+              Run the following command to bootstrap a brand new Next.js App Router project pre-configured with route-level Skelly loading files:
+            </p>
+            <CodeBlock filename="terminal" language="sh" code={docCodeSnippets.cliCreateCode} />
+            
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Integrate into existing codebase</h2>
+            <p style={{ margin: 0 }}>
+              To install Skelly, inject styles, and set up generic fallback skeletons automatically inside your existing project:
+            </p>
+            <CodeBlock filename="terminal" language="sh" code={docCodeSnippets.cliInitCode} />
           </div>
         )}
 

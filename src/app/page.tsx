@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { Skelly } from "skelly/react";
 
 export default function Home() {
   // State for copy tooltips
@@ -207,169 +208,59 @@ release()`
             </div>
             
             <div style={{ position: "relative", padding: "22px", height: "298px" }}>
-              {/* Loaded content layer */}
-              <div style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "18px",
-                transition: "opacity .55s ease",
-                opacity: loading ? 0 : 1
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg,#4F46E5,#8B7CF0)",
-                    flex: "none"
-                  }} />
-                  <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <div style={{ fontWeight: 600, fontSize: "15px" }}>Amara Osei</div>
-                    <div style={{ fontSize: "12.5px", color: "#8A8880" }}>Posted 2 hours ago</div>
-                  </div>
-                  <div style={{
-                    marginLeft: "auto",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "#4F46E5",
-                    background: "rgba(79,70,229,.08)",
-                    padding: "4px 10px",
-                    borderRadius: "99px"
-                  }}>
-                    Follow
-                  </div>
-                </div>
-                <div style={{ fontSize: "14px", lineHeight: 1.6, color: "#3A3833" }}>
-                  Shipped the new onboarding flow today. Conversion is up 12% and the skeleton states made the whole thing feel instant — even on 3G.
-                </div>
+              <Skelly loading={loading} visual="shimmer">
                 <div style={{
-                  height: "96px",
-                  borderRadius: "10px",
-                  background: "repeating-linear-gradient(-45deg, #EDEBE5, #EDEBE5 8px, #F5F4F0 8px, #F5F4F0 16px)",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontFamily: "var(--font-jetbrains-mono), monospace",
-                  fontSize: "11px",
-                  color: "#8A8880"
+                  flexDirection: "column",
+                  gap: "18px"
                 }}>
-                  cover image
-                </div>
-                <div style={{ display: "flex", gap: "18px", fontSize: "13px", color: "#8A8880" }}>
-                  <span>♥ 248</span>
-                  <span>↻ 31</span>
-                  <span>✉ 12</span>
-                </div>
-              </div>
-
-              {/* Skeleton layer */}
-              <div style={{
-                position: "absolute",
-                inset: "22px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "18px",
-                transition: "opacity .55s ease",
-                pointerEvents: "none",
-                opacity: loading ? 1 : 0
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "50%",
-                    flex: "none",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                  <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{
-                      width: "110px",
-                      height: "13px",
-                      borderRadius: "5px",
-                      background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                      backgroundSize: "200% 100%",
-                      animation: "skShimmer 1.4s linear infinite"
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg,#4F46E5,#8B7CF0)",
+                      flex: "none"
                     }} />
+                    <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                      <div style={{ fontWeight: 600, fontSize: "15px" }}>Amara Osei</div>
+                      <div style={{ fontSize: "12.5px", color: "#8A8880" }}>Posted 2 hours ago</div>
+                    </div>
                     <div style={{
-                      width: "80px",
-                      height: "10px",
-                      borderRadius: "5px",
-                      background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                      backgroundSize: "200% 100%",
-                      animation: "skShimmer 1.4s linear infinite"
-                    }} />
+                      marginLeft: "auto",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#4F46E5",
+                      background: "rgba(79,70,229,.08)",
+                      padding: "4px 10px",
+                      borderRadius: "99px"
+                    }}>
+                      Follow
+                    </div>
+                  </div>
+                  <div style={{ fontSize: "14px", lineHeight: 1.6, color: "#3A3833" }}>
+                    Shipped the new onboarding flow today. Conversion is up 12% and the skeleton states made the whole thing feel instant — even on 3G.
                   </div>
                   <div style={{
-                    marginLeft: "auto",
-                    width: "64px",
-                    height: "24px",
-                    borderRadius: "99px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
+                    height: "96px",
+                    borderRadius: "10px",
+                    background: "repeating-linear-gradient(-45deg, #EDEBE5, #EDEBE5 8px, #F5F4F0 8px, #F5F4F0 16px)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontFamily: "var(--font-jetbrains-mono), monospace",
+                    fontSize: "11px",
+                    color: "#8A8880"
+                  }}>
+                    cover image
+                  </div>
+                  <div style={{ display: "flex", gap: "18px", fontSize: "13px", color: "#8A8880" }}>
+                    <span>♥ 248</span>
+                    <span>↻ 31</span>
+                    <span>✉ 12</span>
+                  </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <div style={{
-                    height: "12px",
-                    borderRadius: "5px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                  <div style={{
-                    height: "12px",
-                    width: "92%",
-                    borderRadius: "5px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                  <div style={{
-                    height: "12px",
-                    width: "61%",
-                    borderRadius: "5px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                </div>
-                <div style={{
-                  height: "96px",
-                  borderRadius: "10px",
-                  background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                  backgroundSize: "200% 100%",
-                  animation: "skShimmer 1.4s linear infinite"
-                }} />
-                <div style={{ display: "flex", gap: "18px" }}>
-                  <div style={{
-                    width: "44px",
-                    height: "12px",
-                    borderRadius: "5px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                  <div style={{
-                    width: "38px",
-                    height: "12px",
-                    borderRadius: "5px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                  <div style={{
-                    width: "38px",
-                    height: "12px",
-                    borderRadius: "5px",
-                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "skShimmer 1.4s linear infinite"
-                  }} />
-                </div>
-              </div>
+              </Skelly>
             </div>
           </div>
           <div style={{

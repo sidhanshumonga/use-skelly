@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import "skelly/style.css";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
