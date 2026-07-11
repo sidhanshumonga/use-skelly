@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { Skelly } from "skelly/react";
+import { Skelly } from "skellyjs/react";
 import BenchmarkRunner from "@/components/BenchmarkRunner";
 
 export default function Home() {

@@ -71,13 +71,13 @@ function handleCreate() {
       // Install dependencies
       console.log(`[skelly] Installing dependencies in "${projectName}"...`);
       execSync(`npm install`, { cwd: projectPath, stdio: "inherit" });
-      execSync(`npm install skelly`, { cwd: projectPath, stdio: "inherit" });
+      execSync(`npm install skellyjs`, { cwd: projectPath, stdio: "inherit" });
 
       // Ingest Skelly style sheets in src/main.tsx
       const mainPath = path.join(projectPath, "src", "main.tsx");
       if (fs.existsSync(mainPath)) {
         let content = fs.readFileSync(mainPath, "utf-8");
-        content = `import 'skelly/style.css';\n` + content;
+        content = `import 'skellyjs/style.css';\n` + content;
         fs.writeFileSync(mainPath, content, "utf-8");
         console.log(`[skelly] Injected style.css into "src/main.tsx"`);
       }
@@ -92,21 +92,21 @@ function handleCreate() {
       const projectPath = path.resolve(process.cwd(), projectName);
 
       // Install Skelly
-      console.log(`[skelly] Installing skelly package in "${projectName}"...`);
-      execSync(`npm install skelly`, { cwd: projectPath, stdio: "inherit" });
+      console.log(`[skelly] Installing skellyjs package in "${projectName}"...`);
+      execSync(`npm install skellyjs`, { cwd: projectPath, stdio: "inherit" });
 
       // Add Skelly styles to src/app/layout.tsx
       const layoutPath = path.join(projectPath, "src", "app", "layout.tsx");
       if (fs.existsSync(layoutPath)) {
         let content = fs.readFileSync(layoutPath, "utf-8");
-        content = `import "skelly/style.css";\n` + content;
+        content = `import "skellyjs/style.css";\n` + content;
         fs.writeFileSync(layoutPath, content, "utf-8");
         console.log(`[skelly] Injected style.css into "src/app/layout.tsx"`);
       }
 
       // Add global route loading.tsx template
       const loadingPath = path.join(projectPath, "src", "app", "loading.tsx");
-      const loadingCode = `import { Skelly } from "skelly/react";
+      const loadingCode = `import { Skelly } from "skellyjs/react";
 
 export default function GlobalLoading() {
   // Pre-baked generic skeleton loaded instantly for every route transition!
@@ -145,13 +145,13 @@ function handleInit() {
     const isNext = !!(pkg.dependencies && pkg.dependencies.next);
 
     // Auto-detect package manager
-    let installCmd = "npm install skelly";
+    let installCmd = "npm install skellyjs";
     if (fs.existsSync(path.resolve(process.cwd(), "pnpm-lock.yaml"))) {
-      installCmd = "pnpm add skelly";
+      installCmd = "pnpm add skellyjs";
     } else if (fs.existsSync(path.resolve(process.cwd(), "yarn.lock"))) {
-      installCmd = "yarn add skelly";
+      installCmd = "yarn add skellyjs";
     } else if (fs.existsSync(path.resolve(process.cwd(), "bun.lockb"))) {
-      installCmd = "bun add skelly";
+      installCmd = "bun add skellyjs";
     }
 
     console.log(`[skelly] Installing package using: "${installCmd}"...`);
@@ -169,8 +169,8 @@ function handleInit() {
 
       if (layoutPath) {
         let content = fs.readFileSync(layoutPath, "utf-8");
-        if (!content.includes("skelly/style.css")) {
-          content = `import "skelly/style.css";\n` + content;
+        if (!content.includes("skellyjs/style.css")) {
+          content = `import "skellyjs/style.css";\n` + content;
           fs.writeFileSync(layoutPath, content, "utf-8");
           console.log(`[skelly] Added style.css import in "${path.basename(layoutPath)}"`);
         }
@@ -181,7 +181,7 @@ function handleInit() {
       if (appDir) {
         const loadingPath = path.join(appDir, "loading.tsx");
         if (!fs.existsSync(loadingPath)) {
-          const loadingCode = `import { Skelly } from "skelly/react";
+          const loadingCode = `import { Skelly } from "skellyjs/react";
 
 export default function GlobalLoading() {
   return <Skelly preset="generic" visual="shimmer" style={{ padding: "40px", maxWidth: "600px" }} />;
@@ -213,8 +213,8 @@ export default function GlobalLoading() {
 
       if (entryPath) {
         let content = fs.readFileSync(entryPath, "utf-8");
-        if (!content.includes("skelly/style.css")) {
-          content = `import 'skelly/style.css';\n` + content;
+        if (!content.includes("skellyjs/style.css")) {
+          content = `import 'skellyjs/style.css';\n` + content;
           fs.writeFileSync(entryPath, content, "utf-8");
           console.log(`[skelly] Added style.css import in "${path.relative(process.cwd(), entryPath)}"`);
         }
@@ -224,7 +224,7 @@ export default function GlobalLoading() {
     console.log(`
 🎉 Integration complete! Skelly is ready to use in your project.
 Import components using:
-  import { Skelly } from 'skelly/react'
+  import { Skelly } from 'skellyjs/react'
     `);
   } catch (error: any) {
     console.error(`[skelly] Integration failed: ${error.message}`);

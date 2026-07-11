@@ -42,19 +42,19 @@ This repository is organized as a monorepo containing both the core package and 
 Install the package via npm:
 
 ```bash
-npm install skelly
+npm install skellyjs
 ```
 
 Import global keyframe animations in your root styles file:
 
 ```css
-import "skelly/style.css";
+import "skellyjs/style.css";
 ```
 
 ### 2. Usage in React / Next.js
 
 ```tsx
-import { Skelly } from "skelly/react";
+import { Skelly } from "skellyjs/react";
 
 function UserProfile({ isLoading, userData }) {
   return (

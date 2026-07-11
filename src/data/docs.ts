@@ -87,7 +87,7 @@ export const chapters: DocChapter[] = [
 ];
 
 export const docCodeSnippets = {
-  quickStartCode: `import { Skelly } from 'skelly/react'
+  quickStartCode: `import { Skelly } from 'skellyjs/react'
 
 function Profile({ userId }) {
   const { data, isLoading } = useUser(userId)
@@ -97,14 +97,14 @@ function Profile({ userId }) {
     </Skelly>
   )
 }`,
-  ssrCode: `import { withSkelly } from 'skelly/next'
+  ssrCode: `import { withSkelly } from 'skellyjs/next'
 
 export default withSkelly({
   // skeleton specs generated at build,
   // inlined into server HTML
 })`,
   pagesCode: `// build step
-import { snapshot } from 'skelly/build'
+import { snapshot } from 'skellyjs/build'
 
 await snapshot('/dashboard', {
   out: '.skelly/dashboard.json'
@@ -123,7 +123,7 @@ cd my-awesome-app
 npm run dev`,
   cliInitCode: `npx skelly init`,
   presetsCode: `// Use presets to scaffold layouts when children are undesigned or empty
-import { Skelly } from 'skelly/react';
+import { Skelly } from 'skellyjs/react';
 
 function Dashboard() {
   return (
@@ -134,8 +134,8 @@ function Dashboard() {
 }
 
 // Available presets: 'dashboard' | 'article' | 'feed' | 'profile' | 'generic'`,
-  reactAdapterCode: `import { Skelly } from 'skelly/react';
-import 'skelly/style.css';
+  reactAdapterCode: `import { Skelly } from 'skellyjs/react';
+import 'skellyjs/style.css';
 
 function Profile({ isLoading, data }) {
   return (
@@ -155,12 +155,12 @@ function Profile({ isLoading, data }) {
 </Skelly>
 
 <script setup>
-import { vSkelly, Skelly } from 'skelly/vue';
-import 'skelly/style.css';
+import { vSkelly, Skelly } from 'skellyjs/vue';
+import 'skellyjs/style.css';
 </script>`,
   svelteAdapterCode: `<script>
-  import { skelly, Skelly } from 'skelly/svelte';
-  import 'skelly/style.css';
+  import { skelly, Skelly } from 'skellyjs/svelte';
+  import 'skellyjs/style.css';
   export let isLoading = true;
 </script>
 
@@ -173,8 +173,8 @@ import 'skelly/style.css';
 <Skelly loading={isLoading}>
   <slot />
 </Skelly>`,
-  vanillaAdapterCode: `import { skelly } from 'skelly';
-import 'skelly/style.css';
+  vanillaAdapterCode: `import { skelly } from 'skellyjs';
+import 'skellyjs/style.css';
 
 const element = document.querySelector('.profile-container');
 const release = skelly(element, {
