@@ -459,7 +459,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
         {slug === "framework-adapters" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>React Adapter (skelly-js/react)</h3>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>React Adapter (use-skelly/react)</h3>
               <p style={{ margin: 0 }}>
                 Includes the <code>&lt;Skelly&gt;</code> container wrapper, <code>&lt;Skelly.Suspense&gt;</code> boundaries, and the <code>useSkelly()</code> hook. RSC-compatible.
               </p>
@@ -467,7 +467,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Vue Adapter (skelly-js/vue)</h3>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Vue Adapter (use-skelly/vue)</h3>
               <p style={{ margin: 0 }}>
                 Provides the custom directive <code>v-skelly</code> and the <code>&lt;Skelly&gt;</code> wrapper component.
               </p>
@@ -475,7 +475,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Svelte Adapter (skelly-js/svelte)</h3>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Svelte Adapter (use-skelly/svelte)</h3>
               <p style={{ margin: 0 }}>
                 Provides the Svelte action <code>use:skelly</code> and a Svelte container element wrapper component.
               </p>
@@ -483,7 +483,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
-              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Vanilla JavaScript Core (skelly-js)</h3>
+              <h3 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", color: "#1C1C1A" }}>Vanilla JavaScript Core (use-skelly)</h3>
               <p style={{ margin: 0 }}>
                 The core layout-measurement compiler. Works anywhere in the DOM.
               </p>

@@ -1,5 +1,5 @@
 {
-  "name": "skelly-js",
+  "name": "use-skelly",
   "version": "0.1.0",
   "description": "Skeletons that draw themselves. Layout-driven skeleton state library.",
   "main": "./dist/index.js",
