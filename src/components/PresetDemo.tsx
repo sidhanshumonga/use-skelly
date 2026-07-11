@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Skelly } from "skellyjs/react";
+import { Skelly } from "skelly-js/react";
 
 export default function PresetDemo() {
   const presets = ["dashboard", "article", "feed", "profile", "generic"] as const;
