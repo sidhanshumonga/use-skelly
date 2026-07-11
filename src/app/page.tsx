@@ -1,0 +1,949 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+
+export default function Home() {
+  // State for copy tooltips
+  const [copiedHero, setCopiedHero] = useState(false);
+  const [copiedFooter, setCopiedFooter] = useState(false);
+
+  // State for code framework tabs
+  const [activeTab, setActiveTab] = useState<"react" | "vue" | "svelte" | "vanilla">("react");
+
+  // State for the morphing demo card
+  const [loading, setLoading] = useState(true);
+
+  // Toggle loading state every 2.6 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLoading((prev) => !prev);
+    }, 2600);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCopy = (installCmd: string, section: "hero" | "footer") => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(installCmd);
+      if (section === "hero") {
+        setCopiedHero(true);
+        setTimeout(() => setCopiedHero(false), 1400);
+      } else {
+        setCopiedFooter(true);
+        setTimeout(() => setCopiedFooter(false), 1400);
+      }
+    }
+  };
+
+  const codeSamples = {
+    react: `import { Skelly } from 'skelly/react'
+
+<Skelly loading={isLoading} visual="shimmer">
+  <ProfileCard user={user} />
+</Skelly>`,
+    vue: `<script setup>
+import { Skelly } from 'skelly/vue'
+</script>
+
+<Skelly :loading="isLoading" visual="shimmer">
+  <ProfileCard :user="user" />
+</Skelly>`,
+    svelte: `<script>
+  import { Skelly } from 'skelly/svelte'
+</script>
+
+<Skelly loading={isLoading} visual="shimmer">
+  <ProfileCard {user} />
+</Skelly>`,
+    vanilla: `import { skelly } from 'skelly'
+
+const release = skelly(document.querySelector('#card'), {
+  visual: 'shimmer'
+})
+
+await fetchData()
+release()`
+  };
+
+  const frameworks = [
+    { id: "react", label: "React" },
+    { id: "vue", label: "Vue" },
+    { id: "svelte", label: "Svelte" },
+    { id: "vanilla", label: "Vanilla" }
+  ] as const;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Navbar />
+
+      {/* ============ HERO ============ */}
+      <header style={{
+        display: "grid",
+        gridTemplateColumns: "1.05fr 1fr",
+        gap: "64px",
+        alignItems: "center",
+        maxWidth: "1180px",
+        margin: "0 auto",
+        padding: "88px 40px 96px",
+        width: "100%"
+      }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          <h1 style={{
+            margin: 0,
+            fontSize: "58px",
+            lineHeight: 1.04,
+            letterSpacing: "-0.035em",
+            fontWeight: 700,
+            textWrap: "balance"
+          }}>
+            Skeletons that draw themselves.
+          </h1>
+          <p style={{
+            margin: 0,
+            fontSize: "19px",
+            lineHeight: 1.55,
+            color: "#55534C",
+            maxWidth: "46ch",
+            textWrap: "pretty"
+          }}>
+            skelly reads your rendered UI and generates pixel-accurate loading states for it — components, pages, images, text, tables. Shimmer, pulse, or optimistic. On the server too.
+          </p>
+          
+          <div id="install" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px",
+              fontFamily: "var(--font-jetbrains-mono), monospace",
+              fontSize: "14.5px",
+              background: "#1C1C1A",
+              color: "#E8E6E0",
+              padding: "13px 18px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 16px rgba(28,28,26,.14)"
+            }}>
+              <span style={{ color: "#8A8880", userSelect: "none" }}>$</span>
+              <span>npm i skelly</span>
+              <button
+                onClick={() => handleCopy("npm i skelly", "hero")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#8A8880",
+                  fontFamily: "inherit",
+                  fontSize: "12px",
+                  padding: "2px 6px",
+                  borderRadius: "5px",
+                  transition: "all 0.2s"
+                }}
+                className="hover-bright"
+              >
+                {copiedHero ? "copied!" : "copy"}
+              </button>
+            </div>
+            <Link href="/docs" style={{
+              fontSize: "14.5px",
+              fontWeight: 600,
+              padding: "13px 18px"
+            }}>
+              Read the docs →
+            </Link>
+          </div>
+
+          <div style={{
+            display: "flex",
+            gap: "22px",
+            fontSize: "13px",
+            color: "#8A8880",
+            fontFamily: "var(--font-jetbrains-mono), monospace"
+          }}>
+            <span>2.1 kB gzip</span>
+            <span>·</span>
+            <span>zero deps</span>
+            <span>·</span>
+            <span>MIT</span>
+          </div>
+        </div>
+
+        {/* Live morphing demo */}
+        <div style={{ position: "relative" }}>
+          <div style={{
+            position: "absolute",
+            inset: "-40px",
+            background: "radial-gradient(ellipse at 60% 40%, rgba(79,70,229,.09), transparent 65%)",
+            pointerEvents: "none"
+          }} />
+          <div style={{
+            position: "relative",
+            background: "#fff",
+            border: "1px solid rgba(28,28,26,.09)",
+            borderRadius: "16px",
+            boxShadow: "0 12px 40px rgba(28,28,26,.09)",
+            overflow: "hidden",
+            animation: "skFloat 7s ease-in-out infinite"
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "12px 16px",
+              borderBottom: "1px solid rgba(28,28,26,.07)"
+            }}>
+              <div style={{ display: "flex", gap: "6px" }}>
+                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#E4E2DC" }} />
+                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#E4E2DC" }} />
+                <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#E4E2DC" }} />
+              </div>
+              <div style={{
+                fontFamily: "var(--font-jetbrains-mono), monospace",
+                fontSize: "11px",
+                transition: "color .3s",
+                color: loading ? "#4F46E5" : "#8A8880"
+              }}>
+                {loading ? "loading — skeleton by skelly" : "loaded — real component"}
+              </div>
+            </div>
+            
+            <div style={{ position: "relative", padding: "22px", height: "298px" }}>
+              {/* Loaded content layer */}
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "18px",
+                transition: "opacity .55s ease",
+                opacity: loading ? 0 : 1
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg,#4F46E5,#8B7CF0)",
+                    flex: "none"
+                  }} />
+                  <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                    <div style={{ fontWeight: 600, fontSize: "15px" }}>Amara Osei</div>
+                    <div style={{ fontSize: "12.5px", color: "#8A8880" }}>Posted 2 hours ago</div>
+                  </div>
+                  <div style={{
+                    marginLeft: "auto",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#4F46E5",
+                    background: "rgba(79,70,229,.08)",
+                    padding: "4px 10px",
+                    borderRadius: "99px"
+                  }}>
+                    Follow
+                  </div>
+                </div>
+                <div style={{ fontSize: "14px", lineHeight: 1.6, color: "#3A3833" }}>
+                  Shipped the new onboarding flow today. Conversion is up 12% and the skeleton states made the whole thing feel instant — even on 3G.
+                </div>
+                <div style={{
+                  height: "96px",
+                  borderRadius: "10px",
+                  background: "repeating-linear-gradient(-45deg, #EDEBE5, #EDEBE5 8px, #F5F4F0 8px, #F5F4F0 16px)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontFamily: "var(--font-jetbrains-mono), monospace",
+                  fontSize: "11px",
+                  color: "#8A8880"
+                }}>
+                  cover image
+                </div>
+                <div style={{ display: "flex", gap: "18px", fontSize: "13px", color: "#8A8880" }}>
+                  <span>♥ 248</span>
+                  <span>↻ 31</span>
+                  <span>✉ 12</span>
+                </div>
+              </div>
+
+              {/* Skeleton layer */}
+              <div style={{
+                position: "absolute",
+                inset: "22px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "18px",
+                transition: "opacity .55s ease",
+                pointerEvents: "none",
+                opacity: loading ? 1 : 0
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    flex: "none",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                  <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                    <div style={{
+                      width: "110px",
+                      height: "13px",
+                      borderRadius: "5px",
+                      background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                      backgroundSize: "200% 100%",
+                      animation: "skShimmer 1.4s linear infinite"
+                    }} />
+                    <div style={{
+                      width: "80px",
+                      height: "10px",
+                      borderRadius: "5px",
+                      background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                      backgroundSize: "200% 100%",
+                      animation: "skShimmer 1.4s linear infinite"
+                    }} />
+                  </div>
+                  <div style={{
+                    marginLeft: "auto",
+                    width: "64px",
+                    height: "24px",
+                    borderRadius: "99px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{
+                    height: "12px",
+                    borderRadius: "5px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                  <div style={{
+                    height: "12px",
+                    width: "92%",
+                    borderRadius: "5px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                  <div style={{
+                    height: "12px",
+                    width: "61%",
+                    borderRadius: "5px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                </div>
+                <div style={{
+                  height: "96px",
+                  borderRadius: "10px",
+                  background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                  backgroundSize: "200% 100%",
+                  animation: "skShimmer 1.4s linear infinite"
+                }} />
+                <div style={{ display: "flex", gap: "18px" }}>
+                  <div style={{
+                    width: "44px",
+                    height: "12px",
+                    borderRadius: "5px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                  <div style={{
+                    width: "38px",
+                    height: "12px",
+                    borderRadius: "5px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                  <div style={{
+                    width: "38px",
+                    height: "12px",
+                    borderRadius: "5px",
+                    background: "linear-gradient(90deg, #EDEBE5 25%, #F7F6F2 50%, #EDEBE5 75%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skShimmer 1.4s linear infinite"
+                  }} />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{
+            textAlign: "center",
+            marginTop: "16px",
+            fontFamily: "var(--font-jetbrains-mono), monospace",
+            fontSize: "11.5px",
+            color: "#8A8880"
+          }}>
+            ← one component. skelly generated the skeleton. →
+          </div>
+        </div>
+      </header>
+
+      {/* ============ HOW ============ */}
+      <section style={{ maxWidth: "1180px", margin: "0 auto", padding: "0 40px 96px", width: "100%" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            padding: "26px",
+            background: "#fff",
+            border: "1px solid rgba(28,28,26,.08)",
+            borderRadius: "14px"
+          }}>
+            <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12px", color: "#4F46E5" }}>
+              01 — wrap
+            </div>
+            <div style={{
+              fontFamily: "var(--font-jetbrains-mono), monospace",
+              fontSize: "13.5px",
+              color: "#3A3833",
+              background: "#F5F4F0",
+              padding: "12px 14px",
+              borderRadius: "8px",
+              lineHeight: 1.6
+            }}>
+              &lt;Skelly loading={"{isLoading}"}&gt;<br />
+              &nbsp;&nbsp;&lt;ProfileCard /&gt;<br />
+              &lt;/Skelly&gt;
+            </div>
+            <p style={{ margin: 0, fontSize: "14px", color: "#55534C", lineHeight: 1.55 }}>
+              Wrap anything — a button, a table, an entire page.
+            </p>
+          </div>
+          
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            padding: "26px",
+            background: "#fff",
+            border: "1px solid rgba(28,28,26,.08)",
+            borderRadius: "14px"
+          }}>
+            <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12px", color: "#4F46E5" }}>
+              02 — analyze
+            </div>
+            <div style={{
+              fontFamily: "var(--font-jetbrains-mono), monospace",
+              fontSize: "13.5px",
+              color: "#3A3833",
+              background: "#F5F4F0",
+              padding: "12px 14px",
+              borderRadius: "8px",
+              lineHeight: 1.6
+            }}>
+              ▸ 1 avatar (circle)<br />
+              ▸ 3 text lines (61–100%)<br />
+              ▸ 1 image block
+            </div>
+            <p style={{ margin: 0, fontSize: "14px", color: "#55534C", lineHeight: 1.55 }}>
+              skelly measures the real layout — shapes, radii, line lengths.
+            </p>
+          </div>
+
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            padding: "26px",
+            background: "#fff",
+            border: "1px solid rgba(28,28,26,.08)",
+            borderRadius: "14px"
+          }}>
+            <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12px", color: "#4F46E5" }}>
+              03 — render
+            </div>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              background: "#F5F4F0",
+              padding: "14px",
+              borderRadius: "8px"
+            }}>
+              <div style={{
+                height: "11px",
+                width: "70%",
+                borderRadius: "5px",
+                background: "linear-gradient(90deg, #E4E2DC 25%, #F0EEE8 50%, #E4E2DC 75%)",
+                backgroundSize: "200% 100%",
+                animation: "skShimmer 1.4s linear infinite"
+              }} />
+              <div style={{
+                height: "11px",
+                borderRadius: "5px",
+                background: "linear-gradient(90deg, #E4E2DC 25%, #F0EEE8 50%, #E4E2DC 75%)",
+                backgroundSize: "200% 100%",
+                animation: "skShimmer 1.4s linear infinite"
+              }} />
+              <div style={{
+                height: "11px",
+                width: "45%",
+                borderRadius: "5px",
+                background: "linear-gradient(90deg, #E4E2DC 25%, #F0EEE8 50%, #E4E2DC 75%)",
+                backgroundSize: "200% 100%",
+                animation: "skShimmer 1.4s linear infinite"
+              }} />
+            </div>
+            <p style={{ margin: 0, fontSize: "14px", color: "#55534C", lineHeight: 1.55 }}>
+              A matching skeleton renders instantly — client or server.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FEATURES ============ */}
+      <section id="features" style={{
+        background: "#fff",
+        borderTop: "1px solid rgba(28,28,26,.07)",
+        borderBottom: "1px solid rgba(28,28,26,.07)",
+        padding: "88px 40px",
+        width: "100%"
+      }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+          <h2 style={{ margin: "0 0 10px", fontSize: "36px", letterSpacing: "-0.03em", fontWeight: 700 }}>
+            Every loading state. One API.
+          </h2>
+          <p style={{ margin: "0 0 44px", fontSize: "16.5px", color: "#55534C", maxWidth: "56ch" }}>
+            Pick a visual per component or set one globally. All of them respect{" "}
+            <span style={{
+              fontFamily: "var(--font-jetbrains-mono), monospace",
+              fontSize: "14.5px",
+              background: "#F5F4F0",
+              padding: "1px 6px",
+              borderRadius: "5px"
+            }}>
+              prefers-reduced-motion
+            </span>.
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "18px" }}>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              padding: "22px",
+              border: "1px solid rgba(28,28,26,.08)",
+              borderRadius: "14px",
+              background: "#FAFAF8"
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                <div style={{
+                  height: "10px",
+                  width: "80%",
+                  borderRadius: "5px",
+                  background: "linear-gradient(90deg, #E4E2DC 25%, #F5F4F0 50%, #E4E2DC 75%)",
+                  backgroundSize: "200% 100%",
+                  animation: "skShimmer 1.4s linear infinite"
+                }} />
+                <div style={{
+                  height: "10px",
+                  width: "55%",
+                  borderRadius: "5px",
+                  background: "linear-gradient(90deg, #E4E2DC 25%, #F5F4F0 50%, #E4E2DC 75%)",
+                  backgroundSize: "200% 100%",
+                  animation: "skShimmer 1.4s linear infinite"
+                }} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Shimmer</div>
+                <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                  GPU-composited sweep. The classic.
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              padding: "22px",
+              border: "1px solid rgba(28,28,26,.08)",
+              borderRadius: "14px",
+              background: "#FAFAF8"
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                <div style={{
+                  height: "10px",
+                  width: "80%",
+                  borderRadius: "5px",
+                  background: "#E4E2DC",
+                  animation: "skPulse 1.6s ease infinite"
+                }} />
+                <div style={{
+                  height: "10px",
+                  width: "55%",
+                  borderRadius: "5px",
+                  background: "#E4E2DC",
+                  animation: "skPulse 1.6s ease infinite"
+                }} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Pulse</div>
+                <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                  Quieter. Great for dense tables.
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              padding: "22px",
+              border: "1px solid rgba(28,28,26,.08)",
+              borderRadius: "14px",
+              background: "#FAFAF8"
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                <div style={{ height: "10px", width: "80%", borderRadius: "5px", background: "rgba(79,70,229,.16)" }} />
+                <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "11px", color: "#4F46E5" }}>
+                  &quot;Untitled draft&quot; ✓ saved
+                </div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Optimistic</div>
+                <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                  Render expected data, reconcile on arrival.
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              padding: "22px",
+              border: "1px solid rgba(28,28,26,.08)",
+              borderRadius: "14px",
+              background: "#FAFAF8"
+            }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+                <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "11px", color: "#8A8880" }}>
+                  HTML → <span style={{ color: "#4F46E5" }}>skeleton inlined</span>
+                </div>
+                <div style={{
+                  height: "10px",
+                  width: "70%",
+                  borderRadius: "5px",
+                  background: "linear-gradient(90deg, #E4E2DC 25%, #F5F4F0 50%, #E4E2DC 75%)",
+                  backgroundSize: "200% 100%",
+                  animation: "skShimmer 1.4s linear infinite"
+                }} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>SSR / streaming</div>
+                <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                  Skeletons in the first byte. No hydration flash.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "18px", marginTop: "18px" }}>
+            <div style={{ padding: "22px", border: "1px solid rgba(28,28,26,.08)", borderRadius: "14px", background: "#FAFAF8" }}>
+              <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Whole pages</div>
+              <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                Route-level snapshots generate full-page skeletons at build time.
+              </div>
+            </div>
+            <div style={{ padding: "22px", border: "1px solid rgba(28,28,26,.08)", borderRadius: "14px", background: "#FAFAF8" }}>
+              <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Text-aware</div>
+              <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                Line count and ragged-edge widths match your real copy.
+              </div>
+            </div>
+            <div style={{ padding: "22px", border: "1px solid rgba(28,28,26,.08)", borderRadius: "14px", background: "#FAFAF8" }}>
+              <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Images &amp; media</div>
+              <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                Aspect-ratio-locked blocks. Optional dominant-color fill.
+              </div>
+            </div>
+            <div style={{ padding: "22px", border: "1px solid rgba(28,28,26,.08)", borderRadius: "14px", background: "#FAFAF8" }}>
+              <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>Tables &amp; lists</div>
+              <div style={{ fontSize: "13.5px", color: "#55534C", lineHeight: 1.5 }}>
+                Row-count hints; sticky headers stay real while cells load.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FRAMEWORKS ============ */}
+      <section id="frameworks" style={{ maxWidth: "1180px", margin: "0 auto", padding: "88px 40px", width: "100%" }}>
+        <h2 style={{ margin: "0 0 10px", fontSize: "36px", letterSpacing: "-0.03em", fontWeight: 700 }}>
+          Your framework. Or none.
+        </h2>
+        <p style={{ margin: "0 0 32px", fontSize: "16.5px", color: "#55534C" }}>
+          The core is vanilla — 2.1 kB, framework-agnostic. Thin adapters where you want idioms.
+        </p>
+
+        <div style={{ display: "flex", gap: "8px" }}>
+          {frameworks.map((fw) => {
+            const active = activeTab === fw.id;
+            return (
+              <button
+                key={fw.id}
+                onClick={() => setActiveTab(fw.id)}
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono), monospace",
+                  fontSize: "13px",
+                  padding: "9px 18px",
+                  borderRadius: "9px 9px 0 0",
+                  border: "1px solid rgba(28, 28, 26, 0.12)",
+                  borderBottom: "none",
+                  cursor: "pointer",
+                  background: active ? "#1C1C1A" : "#F5F4F0",
+                  color: active ? "#fff" : "#55534C",
+                  transition: "all 0.15s ease"
+                }}
+              >
+                {fw.label}
+              </button>
+            );
+          })}
+        </div>
+        <pre style={{
+          margin: 0,
+          background: "#1C1C1A",
+          color: "#E8E6E0",
+          fontFamily: "var(--font-jetbrains-mono), monospace",
+          fontSize: "14px",
+          lineHeight: 1.75,
+          padding: "26px 30px",
+          borderRadius: "0 12px 12px 12px",
+          overflowX: "auto",
+          boxShadow: "0 8px 28px rgba(28,28,26,.12)",
+          minHeight: "170px"
+        }}>{codeSamples[activeTab]}</pre>
+      </section>
+
+      {/* ============ COMPARISON ============ */}
+      <section style={{
+        background: "#fff",
+        borderTop: "1px solid rgba(28,28,26,.07)",
+        borderBottom: "1px solid rgba(28,28,26,.07)",
+        padding: "88px 40px",
+        width: "100%"
+      }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+          <h2 style={{ margin: "0 0 44px", fontSize: "36px", letterSpacing: "-0.03em", fontWeight: 700 }}>
+            Stop hand-rolling gray boxes.
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+            <div style={{ padding: "30px", border: "1px solid rgba(28,28,26,.1)", borderRadius: "14px", background: "#FAFAF8" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#8A8880", marginBottom: "18px" }}>
+                {"// hand-rolled skeletons"}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "15px", color: "#55534C", lineHeight: 1.5 }}>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>One skeleton component per real component — forever out of sync</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Redesign a card, forget its skeleton, ship the layout jump</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Client-only — blank page until hydration</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Every dev invents their own shade of gray</span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              padding: "30px",
+              border: "1.5px solid rgba(79,70,229,.35)",
+              borderRadius: "14px",
+              background: "linear-gradient(180deg, rgba(79,70,229,.045), rgba(79,70,229,0))",
+              boxShadow: "0 8px 28px rgba(79,70,229,.08)"
+            }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#4F46E5", marginBottom: "18px" }}>
+                {"// with skelly"}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "15px", color: "#3A3833", lineHeight: 1.5 }}>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
+                  <span>Skeletons derived from the component itself — can&apos;t drift</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
+                  <span>Zero layout shift: same box, same size, guaranteed</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
+                  <span>SSR + streaming: skeletons arrive with the HTML</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
+                  <span>One theme token; matches your design system automatically</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ BENCHMARKS ============ */}
+      <section id="benchmarks" style={{ maxWidth: "1180px", margin: "0 auto", padding: "88px 40px", width: "100%" }}>
+        <h2 style={{ margin: "0 0 10px", fontSize: "36px", letterSpacing: "-0.03em", fontWeight: 700 }}>
+          Small enough to not think about.
+        </h2>
+        <p style={{ margin: "0 0 40px", fontSize: "16.5px", color: "#55534C" }}>
+          Bundle size, minified + gzip. Core only; adapters add ~0.4 kB.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "720px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "170px 1fr 70px", alignItems: "center", gap: "16px" }}>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", fontWeight: 600 }}>skelly</span>
+            <div style={{ height: "26px", borderRadius: "6px", background: "rgba(28,28,26,.05)", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: "8%", borderRadius: "6px", background: "linear-gradient(90deg,#4F46E5,#8B7CF0)" }} />
+            </div>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px", color: "#4F46E5", fontWeight: 600 }}>
+              2.1 kB
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "170px 1fr 70px", alignItems: "center", gap: "16px" }}>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", color: "#55534C" }}>
+              react-loading-x
+            </span>
+            <div style={{ height: "26px", borderRadius: "6px", background: "rgba(28,28,26,.05)", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: "34%", borderRadius: "6px", background: "#C9C7BF" }} />
+            </div>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px", color: "#8A8880" }}>
+              8.9 kB
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "170px 1fr 70px", alignItems: "center", gap: "16px" }}>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", color: "#55534C" }}>
+              placeholder-ui
+            </span>
+            <div style={{ height: "26px", borderRadius: "6px", background: "rgba(28,28,26,.05)", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: "52%", borderRadius: "6px", background: "#C9C7BF" }} />
+            </div>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px", color: "#8A8880" }}>
+              13.6 kB
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "170px 1fr 70px", alignItems: "center", gap: "16px" }}>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13.5px", color: "#55534C" }}>
+              hand-rolled (avg)
+            </span>
+            <div style={{ height: "26px", borderRadius: "6px", background: "rgba(28,28,26,.05)", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: "100%", borderRadius: "6px", background: "#C9C7BF" }} />
+            </div>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px", color: "#8A8880" }}>
+              26+ kB
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", gap: "40px", marginTop: "44px", flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: "32px", fontWeight: 700, letterSpacing: "-0.02em" }}>0 ms</div>
+            <div style={{ fontSize: "13.5px", color: "#8A8880" }}>layout shift (CLS) introduced</div>
+          </div>
+          <div>
+            <div style={{ fontSize: "32px", fontWeight: 700, letterSpacing: "-0.02em" }}>&lt; 1 ms</div>
+            <div style={{ fontSize: "13.5px", color: "#8A8880" }}>analysis per component, cached</div>
+          </div>
+          <div>
+            <div style={{ fontSize: "32px", fontWeight: 700, letterSpacing: "-0.02em" }}>100%</div>
+            <div style={{ fontSize: "13.5px", color: "#8A8880" }}>GPU-composited animations</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ CTA + FOOTER ============ */}
+      <section style={{ background: "#1C1C1A", color: "#E8E6E0", padding: "88px 40px 0", marginTop: "auto", width: "100%" }}>
+        <div style={{
+          maxWidth: "1180px",
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "22px",
+          textAlign: "center",
+          paddingBottom: "80px"
+        }}>
+          <h2 style={{ margin: 0, fontSize: "42px", letterSpacing: "-0.03em", fontWeight: 700, color: "#fff" }}>
+            Ship the skeleton, not the spinner.
+          </h2>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            fontFamily: "var(--font-jetbrains-mono), monospace",
+            fontSize: "15px",
+            background: "rgba(255, 255, 255, 0.07)",
+            border: "1px solid rgba(255, 255, 255, 0.14)",
+            padding: "14px 22px",
+            borderRadius: "10px"
+          }}>
+            <span style={{ color: "#8A8880" }}>$</span>
+            <span>npm i skelly</span>
+            <button
+              onClick={() => handleCopy("npm i skelly", "footer")}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#8A8880",
+                fontFamily: "inherit",
+                fontSize: "12px",
+                padding: "2px 6px",
+                borderRadius: "5px",
+                transition: "all 0.2s"
+              }}
+              className="hover-bright"
+            >
+              {copiedFooter ? "copied!" : "copy"}
+            </button>
+          </div>
+          <div style={{ fontSize: "13px", color: "#8A8880" }}>also on pnpm, yarn, bun, deno</div>
+        </div>
+
+        <footer style={{
+          maxWidth: "1180px",
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "22px 0 28px",
+          borderTop: "1px solid rgba(255,255,255,.1)",
+          fontSize: "13px",
+          color: "#8A8880"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ width: "16px", height: "16px", borderRadius: "5px", border: "1.5px solid #8A8880" }} />
+            <span>skelly — MIT license</span>
+          </div>
+          <div style={{ display: "flex", gap: "24px" }}>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "#8A8880" }}>
+              GitHub
+            </a>
+            <Link href="/docs" style={{ color: "#8A8880" }}>
+              Docs
+            </Link>
+            <Link href="/changelog" style={{ color: "#8A8880" }}>
+              Changelog
+            </Link>
+          </div>
+        </footer>
+      </section>
+    </div>
+  );
+}
