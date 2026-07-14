@@ -58,6 +58,15 @@ export async function generateStaticParams() {
   }));
 }
 
+function getGithubIssueUrl(pageTitle: string, slug: string) {
+  const repoUrl = "https://github.com/sidhanshumonga/use-skelly/issues/new";
+  const title = encodeURIComponent(`[Docs] Issue on ${pageTitle}`);
+  const body = encodeURIComponent(
+    `### Documented Page\n/docs/${slug}\n\n### What is wrong or could be improved?\n[Describe the issue or typo here]\n\n### Suggested correction (optional)\n[Provide suggestion]`
+  );
+  return `${repoUrl}?title=${title}&body=${body}`;
+}
+
 export default async function DocsChapterPage({ params }: PageProps) {
   const { slug } = await params;
   const activeIndex = chapters.findIndex((c) => c.slug === slug);
@@ -493,8 +502,39 @@ export default async function DocsChapterPage({ params }: PageProps) {
         )}
       </div>
 
+      {/* Report Docs Issue CTA */}
+      <div style={{
+        marginTop: "64px",
+        paddingTop: "16px",
+        borderTop: "1px solid rgba(28,28,26,.06)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        fontSize: "13px",
+        color: "#8A8880",
+        fontFamily: "var(--font-instrument-sans), system-ui, sans-serif"
+      }}>
+        <span>Last updated July 2026</span>
+        <a
+          href={getGithubIssueUrl(cur.title, cur.slug)}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "#4F46E5",
+            textDecoration: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            fontWeight: 500
+          }}
+          className="hover-underline"
+        >
+          Suggest an edit or report a docs issue ↗
+        </a>
+      </div>
+
       {/* ============ PREV / NEXT PAGINATION ============ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginTop: "48px", width: "100%" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginTop: "24px", width: "100%" }}>
         {activeIndex > 0 ? (
           <Link
             href={`/docs/${chapters[activeIndex - 1].slug}`}
