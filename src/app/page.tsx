@@ -28,6 +28,7 @@ export default function Home() {
               href="https://www.producthunt.com/products/skelly?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-skelly" 
               target="_blank" 
               rel="noopener noreferrer"
+              style={{ display: "inline-block" }}
             >
               <img 
                 alt="Skelly - Skeletons that draw themselves — from your own UI | Product Hunt" 
@@ -35,9 +36,8 @@ export default function Home() {
                 height="41" 
                 src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1194574&amp;theme=light&amp;t=1783987263505" 
                 style={{ 
-                  borderRadius: "6px", 
-                  border: "1px solid rgba(28,28,26,.06)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)"
+                  display: "block",
+                  borderRadius: "6px"
                 }}
               />
             </a>
