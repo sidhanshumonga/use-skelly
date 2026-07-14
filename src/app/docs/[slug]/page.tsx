@@ -373,42 +373,69 @@ export default async function DocsChapterPage({ params }: PageProps) {
 
         {slug === "ssr-and-streaming" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
+            <p style={{ margin: 0 }}>
+              Skelly supports server-side rendering (SSR) and React Server Components (RSC) out of the box. By integrating our Next.js configuration wrapper, you can inline layout coordinate specifications directly into the initial HTML response.
+            </p>
             <CodeBlock filename="next.config.js" language="js" code={docCodeSnippets.ssrCode} />
+            
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>How it achieves Zero-CLS SSR</h2>
             <p style={{ margin: 0 }}>
-              Skeleton specs are generated at build time and inlined into the server HTML, so skeletons paint <strong>in the first byte</strong> — before hydration, before any JS executes. The skeleton is plain HTML + CSS; no client runtime is needed to display it.
+              During build time, Skelly compiles layout structures to static files. When a server-side request arrives:
             </p>
-            <p style={{ margin: 0 }}>
-              Works with React Server Components, streaming SSR, and islands architectures.
-            </p>
+            <ul style={{ margin: "8px 0 0", paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px" }}>
+              <li>The server fetches the pre-compiled layout coordinates for the target route.</li>
+              <li>The exact pixel-perfect skeleton rectangles are generated as inline inline-CSS shapes inside the server HTML.</li>
+              <li>Skeletons render in the **first byte** before any client Javascript runs or hydration begins, eliminating layout jumps.</li>
+            </ul>
           </div>
         )}
 
         {slug === "whole-page-skeletons" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
             <p style={{ margin: 0 }}>
-              Snapshot an entire route at build time. Ideal for route transitions and hard navigations where the whole page loads at once.
+              For route transitions, full page redirects, or dashboard initializations, you can snapshot entire layouts to serve full-page skeleton screens instantly.
             </p>
             <CodeBlock filename="build.js" language="js" code={docCodeSnippets.pagesCode} />
+            
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Snapshot Lifecycle</h2>
+            <p style={{ margin: 0 }}>
+              1. **Capture**: During your build pipeline, the <code>snapshot()</code> script boots a headless browser, hits your target routes, and outputs layout JSON arrays.
+            </p>
+            <p style={{ margin: 0 }}>
+              2. **Pre-render**: Import the generated JSON file inside your root entry layouts (like Next.js <code>loading.tsx</code>) to display the full page skeleton instantly on navigations.
+            </p>
           </div>
         )}
 
         {slug === "theming" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
             <p style={{ margin: 0 }}>
-              One set of tokens controls every skeleton. Set them once to match your design system.
+              Skelly elements are styled using standard CSS custom properties. By redefining these variables in your root stylesheet, they automatically inherit your brand theme (including dark mode configurations).
             </p>
             <CodeBlock filename="globals.css" language="css" code={docCodeSnippets.themingCode} />
+            
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>CSS Variable tokens</h2>
+            <ul style={{ margin: "8px 0 0", paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <li><code>--skelly-base</code>: The main background color of the skeleton placeholder shapes (e.g. <code>#E4E2DC</code>).</li>
+              <li><code>--skelly-highlight</code>: The swipe gradient flash color used for shimmer animations (e.g. <code>#F5F4F0</code>).</li>
+              <li><code>--skelly-radius</code>: Global border-radius mapping applied to block shapes.</li>
+              <li><code>--skelly-speed</code>: The cycle duration of shimmer or pulse animations (e.g. <code>1.4s</code>).</li>
+            </ul>
           </div>
         )}
 
         {slug === "api" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <p style={{ margin: "0 0 8px" }}>
+              Below is the comprehensive API reference for the core Skelly module. It includes initialization configurations, options types, and build-time options.
+            </p>
+
             <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
-                skelly(element, options?)
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px", color: "#4F46E5" }}>
+                skelly(element: HTMLElement | null, options?: SkellyOptions) =&gt; () =&gt; void
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                Core function. Replaces <code style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px" }}>element</code>&apos;s content with a skeleton; returns a <code style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px" }}>release()</code> function that restores it.
+                Replaces the targeted container elements content with a pixel-accurate skeleton overlay. It returns a callback function: <code>release()</code>. Call this release callback as soon as data loading is finished to fade out the skeleton and restore the real component tree.
               </div>
             </div>
 
@@ -417,7 +444,16 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 options.visual
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                <code style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px" }}>&quot;shimmer&quot; | &quot;pulse&quot; | &quot;optimistic&quot; | &quot;static&quot;</code> — default <code style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px" }}>&quot;shimmer&quot;</code>.
+                Specifies the skeleton animation style. Accepts <code>&quot;shimmer&quot;</code> (gradient sweep), <code>&quot;pulse&quot;</code> (opacity fade), <code>&quot;optimistic&quot;</code> (reconcile layout values), or <code>&quot;static&quot;</code> (solid color block). Defaults to <code>&quot;shimmer&quot;</code>.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
+                options.preset
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                Accepts <code>&quot;dashboard&quot; | &quot;article&quot; | &quot;feed&quot; | &quot;profile&quot; | &quot;generic&quot;</code>. Pre-draws a template layout immediately, ideal for when children subtrees are empty during initial server mounts.
               </div>
             </div>
 
@@ -426,7 +462,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 options.rows
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                For tables and lists: number of placeholder rows to render while data loads. Defaults to the measured count.
+                Configures the number of loading rows to display. Useful for table and list layouts when you want to mock extra content lines while fetching data. Defaults to the measured line count.
               </div>
             </div>
 
@@ -435,16 +471,16 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 options.media
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                <code style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "13px" }}>&quot;block&quot; | &quot;dominant-color&quot; | &quot;blurhash&quot;</code> — how image areas render while loading.
+                Defines image rendering styles. Accepts <code>&quot;block&quot;</code> (gray background), <code>&quot;dominant-color&quot;</code> (fades in the dominant color of the source image), or <code>&quot;blurhash&quot;</code>. Defaults to <code>&quot;block&quot;</code>.
               </div>
             </div>
 
             <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
-                snapshot(route, options?)
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px", color: "#4F46E5" }}>
+                snapshot(route: string, options?: SnapshotOptions) =&gt; Promise&lt;SkellySpec[]&gt;
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                Build-time helper. Renders a route headlessly and emits its full-page skeleton spec.
+                Runs a headless Chromium process during build time, navigates to the target route, measures container layout tree bounds, and emits the coordinate specifications JSON file.
               </div>
             </div>
           </div>
@@ -453,11 +489,21 @@ export default async function DocsChapterPage({ params }: PageProps) {
         {slug === "presets" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
             <p style={{ margin: 0 }}>
-              If a page is not yet designed or is empty during cold starts, you can render a pre-defined skeleton layout using Skelly presets. This allows developers to scaffold visual structures instantly.
+              Skelly comes bundled with pre-configured layout blueprints (Presets). If your components or page subtrees are completely empty, unstyled, or still in development, presets let you render immediate skeletons with zero custom markup.
             </p>
             <CodeBlock filename="Scaffold.jsx" language="react" code={docCodeSnippets.presetsCode} />
-            <p style={{ margin: 0 }}>
-              Try selecting a preset layout below to see how Skelly draws the loading state:
+            
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Available blueprints</h2>
+            <ul style={{ margin: "8px 0 0", paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px" }}>
+              <li><code>generic</code>: A standard layout consisting of a block title and four ragged text rows.</li>
+              <li><code>dashboard</code>: A structural admin panel template (sidebar, topbar, stats widgets, and card grids).</li>
+              <li><code>article</code>: An editor profile layout with titles, author avatars, and image media placeholders.</li>
+              <li><code>feed</code>: A timeline feed preview mapping social card listings and activity updates.</li>
+              <li><code>profile</code>: A standard profile layout containing header covers, circular icons, names, and bio metadata.</li>
+            </ul>
+
+            <p style={{ margin: "16px 0 0", fontWeight: 600 }}>
+              Try selecting a preset layout below to preview the responsive skeleton overlay:
             </p>
             <PresetDemo />
           </div>
@@ -466,20 +512,23 @@ export default async function DocsChapterPage({ params }: PageProps) {
         {slug === "cli" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
             <p style={{ margin: 0 }}>
-              Skelly comes with a built-in zero-dependency command line interface to automate setting up skeleton layouts in React, Next.js, and Vite projects.
+              Skelly includes a lightweight, zero-dependency command-line utility. The CLI can bootstrap fresh projects from templates or automate integrating skeleton styling sheets into existing repositories.
             </p>
             
             <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Scaffold a fresh project</h2>
             <p style={{ margin: 0 }}>
-              Run the following command to bootstrap a brand new Next.js App Router project pre-configured with route-level Skelly loading files:
+              Run the following command to boot an interactive scaffolding prompt. It will bootstrap a fresh, optimized Next.js App Router project preconfigured with Skelly loading routes and adapters:
             </p>
             <CodeBlock filename="terminal" language="sh" code={docCodeSnippets.cliCreateCode} />
             
             <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Integrate into existing codebase</h2>
             <p style={{ margin: 0 }}>
-              To install Skelly, inject styles, and set up generic fallback skeletons automatically inside your existing project:
+              To auto-configure Skelly inside an existing codebase:
             </p>
             <CodeBlock filename="terminal" language="sh" code={docCodeSnippets.cliInitCode} />
+            <p style={{ margin: 0 }}>
+              The installer will auto-detect your project manager (npm, pnpm, yarn, bun) and framework (Next.js, Vite), install the package, inject style rules into your global CSS stylesheets, and create initial loading indicators.
+            </p>
           </div>
         )}
 
