@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>skelly</h1>
-  <p>Skeletons that draw themselves.</p>
+  <h1>use-skelly</h1>
+  <p>Skeletons that draw themselves — directly from your markup.</p>
   <p>
     <a href="https://github.com/sidhanshumonga/use-skelly/blob/main/LICENSE">
       <img src="https://img.shields.io/github/license/sidhanshumonga/use-skelly?style=flat-square" alt="license" />
@@ -12,102 +12,175 @@
 
 ---
 
-**Skelly** is a zero-dependency, layout-driven skeleton loader library. Instead of writing custom skeleton loading components for every layout, Skelly measures your actual rendered HTML elements (text lines, avatars, images, tables, grid blocks) and compiles them into a pixel-accurate skeleton overlay.
+**use-skelly** is a zero-dependency, layout-driven skeleton loading library. Instead of writing custom skeleton components for every UI layout, Skelly measures your actual rendered HTML elements (avatars, text lines, images, tables, grid blocks) and compiles them into a pixel-accurate skeleton overlay at runtime or during server builds.
 
-- **Zero configuration**: Wrap your component subtree and let Skelly derive the loaders.
-- **Zero layout shift (CLS)**: The skeleton occupies the exact dimensions of your real elements, guaranteeing seamless transitions when data arrives.
-- **SSR & Streaming ready**: Pre-compile route layout snapshots at build time to render skeleton loaders in the first byte of server HTML.
-- **Extremely lightweight**: Core is only `2.1 kB` minified + gzipped; framework adapters are `~0.4 kB` each.
+## 🚀 Key Advantages
 
----
-
-## 📂 Project Structure
-
-This repository is organized as a monorepo containing both the core package and its documentation website:
-
-* [`/packages/skelly`](file:///Users/sidhanshu/Github/use-skelly/packages/skelly): Source code for the npm utility package.
-  * `src/index.ts`: The core layout calculation engine and generic preset wireframes.
-  * `src/react.tsx`: React hooks, wrapper components, and suspense boundaries.
-  * `src/vue.ts`: Vue 3 directives (`v-skelly`) and components.
-  * `src/svelte.ts`: Svelte actions (`use:skelly`) and adapters.
-  * `src/next.ts` & `src/build.ts`: Next.js config wrappers and build-time snapshot layout extraction scripts.
-* [`/src`](file:///Users/sidhanshu/Github/use-skelly/src): Next.js App Router website codebase hosting the landing page, live benchmark tests, and dynamic markdown documentation pages.
+* **Zero Configuration**: Wrap your component subtree and let Skelly derive the loader dimensions dynamically. No hand-rolling grey divs.
+* **Zero Layout Shift (CLS)**: Skeletons occupy the exact dimensions of your real elements, guaranteeing layout transitions with zero jumps.
+* **SSR & Streaming Ready**: Pre-compile route snapshots at build time to render skeleton loaders in the first byte of server HTML.
+* **Responsive & Self-Healing**: Measures layout dimensions recursively at runtime, responding natively to viewport scaling.
+* **Extremely Lightweight**: Core is only `2.1 kB` minified + gzipped; framework adapters are `~0.4 kB` each.
 
 ---
 
-## 🛠️ Getting Started
+## ⚙️ How It Works (The Lifecycle)
 
-### 1. Installation
+```mermaid
+graph TD
+    A[Mount Component] --> B[Measure DOM Subtree]
+    B --> C[Compile Coordinate Spec]
+    C --> D[Render Skeleton Overlay]
+    D --> E[Data Arrives: Fade Out]
+```
 
-Install the package via npm:
+### 1. Measure
+Skelly recursively traverses your element tree, recording coordinates (`x`/`y`), bounds (`width`/`height`), `border-radius`, and element types (`text`, `image`, or generic structural `block`).
+
+### 2. Compile
+The measurements are translated into a compact JSON layout specification (around 100 bytes per component):
+
+```json
+[
+  { "x": 0, "y": 10, "w": 380, "h": 22, "type": "block" },
+  { "x": 0, "y": 42, "w": 240, "h": 14, "type": "block" },
+  { "x": 0, "y": 74, "w": 44, "h": 44, "r": "50%", "type": "image" },
+  { "x": 56, "y": 80, "w": "95%", "h": 10, "type": "text" },
+  { "x": 56, "y": 98, "w": "88%", "h": 10, "type": "text" }
+]
+```
+
+### 3. Render
+While content is loading, the compiled specification renders as animated shimmers matching your design system.
+
+---
+
+## 📦 Installation & Setup
+
+Install `use-skelly` from npm:
 
 ```bash
 npm install use-skelly
 ```
 
-Import global keyframe animations in your root styles file:
+Import core animation sheets at the root of your application (e.g. `layout.tsx` or `index.css`):
 
 ```css
 import "use-skelly/style.css";
 ```
 
-### 2. Usage in React / Next.js
+---
 
+## 🛠️ Framework Integrations
+
+### React / Next.js
 ```tsx
 import { Skelly } from "use-skelly/react";
 
-function UserProfile({ isLoading, userData }) {
+function Profile({ isLoading, data }) {
   return (
     <Skelly loading={isLoading} visual="shimmer">
       <div className="profile-card">
-        <img src={userData.avatar} className="avatar" />
-        <h2>{userData.name}</h2>
-        <p>{userData.bio}</p>
+        <img src={data.avatar} style={{ borderRadius: "50%" }} />
+        <h2>{data.username}</h2>
+        <p>{data.bio}</p>
       </div>
     </Skelly>
   );
 }
 ```
 
+### Vue 3
+```html
+<template>
+  <!-- Custom directive implementation -->
+  <div v-skelly="isLoading">
+    <profile-card :user="data" />
+  </div>
+</template>
+
+<script setup>
+import { vSkelly } from 'use-skelly/vue';
+</script>
+```
+
+### Svelte
+```html
+<script>
+  import { skelly } from 'use-skelly/svelte';
+  export let isLoading = true;
+</script>
+
+<div use:skelly={{ loading: isLoading }}>
+  <slot />
+</div>
+```
+
+### Vanilla JavaScript
+```javascript
+import { skelly } from 'use-skelly';
+
+const element = document.querySelector('.profile-container');
+const release = skelly(element, { visual: 'shimmer' });
+
+// Call release() once content is fully fetched
+release();
+```
+
 ---
 
-## 🤝 Open Source Contributions
+## 🎨 Visual Themes & CSS Variables
 
-We welcome contributions of all forms: bug fixes, adapters for new frameworks, feature suggestions, or documentation improvements!
+Style matching is done through CSS custom properties. Redefine these variables inside your stylesheet to support light, dark, or glassmorphic themes:
 
-### Local Development Setup
+```css
+:root {
+  --skelly-base: #E4E2DC;       /* Base shape color */
+  --skelly-highlight: #F5F4F0;  /* Animation sweep flash */
+  --skelly-radius: 5px;         /* Default border-radius */
+  --skelly-speed: 1.4s;         /* Shimmer/Pulse cycle speed */
+}
+```
 
-To run this monorepo locally:
+### Visual Modes
+* **`visual="shimmer"`**: GPU-composited gradient wave. Default.
+* **`visual="pulse"`**: Calm opacity fade. Ideal for busy interfaces.
+* **`visual="optimistic"`**: Renders skeleton bounds over text directly, reconciling on data load.
+* **`visual="static"`**: Non-animated flat blocks. Respects `prefers-reduced-motion` settings.
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/sidhanshumonga/use-skelly.git
-   cd use-skelly
-   ```
+---
 
-2. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
+## ⚡ Server-Side Rendering (SSR) & Snapshots
 
-3. **Build the Skelly Package**:
-   Compile the library and generate TypeScript declarations inside the `dist` directory:
-   ```bash
-   npm run build
-   ```
+Pre-compile layouts to inline loading templates inside the first byte of your HTML response:
 
-4. **Launch the Documentation Website**:
-   Start the Next.js dev server on `http://localhost:3000`:
-   ```bash
-   npm run dev
-   ```
+```javascript
+// next.config.js
+import { withSkelly } from 'use-skelly/next';
 
-### Contribution Guidelines
+export default withSkelly({
+  // skeleton specifications generated during build pipeline
+});
+```
 
-* **Keep it Lightweight**: Skelly is built to be a fast, zero-dependency engine. Avoid adding external runtime dependencies.
-* **Write Type-Safe Code**: All core files and adapters must be fully typed in TypeScript.
-* **Verify Builds**: Before submitting a Pull Request, ensure that lint and build tests pass cleanly:
-  ```bash
-  npm run lint
-  npm run build
-  ```
+---
+
+## 📂 Project Monorepo Structure
+
+* [`/packages/skelly`](file:///Users/sidhanshu/Github/use-skelly/packages/skelly): Main entry module containing Core, React, Vue, Svelte, Next, and CLI assets.
+* [`/src`](file:///Users/sidhanshu/Github/use-skelly/src): Landing page, live benchmarks, and dynamic markdown documentation templates.
+
+---
+
+## 🤝 Contributing
+
+We welcome community extensions and adapters (Preact, SolidJS, React Native)! Check out [`CONTRIBUTING.md`](file:///Users/sidhanshu/Github/use-skelly/CONTRIBUTING.md) to set up local environments and read contribution guidelines.
+
+### Development commands:
+```bash
+npm install     # Install dependencies
+npm run build   # Compile packages/skelly/src source
+npm run dev     # Launch documentation website
+```
+
+License: MIT.
