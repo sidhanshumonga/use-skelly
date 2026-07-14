@@ -53,12 +53,18 @@ function getReleases(): Release[] {
             let color = "#8A8880";
             let bg = "rgba(28,28,26,.05)";
             
-            if (type === "new") {
+            if (type === "new" || type === "add" || type === "added") {
               color = "#1F8A5B";
               bg = "rgba(31,138,91,.08)";
-            } else if (type === "fix") {
-              color = "#8A6D1F";
-              bg = "rgba(138,109,31,.08)";
+            } else if (type === "fix" || type === "fixed") {
+              color = "#B0483A";
+              bg = "rgba(176,72,58,.08)";
+            } else if (type === "improved" || type === "improve") {
+              color = "#C27803";
+              bg = "rgba(194,120,3,.08)";
+            } else if (type === "rename") {
+              color = "#7C3AED";
+              bg = "rgba(124,58,237,.08)";
             } else if (type === "perf") {
               color = "#4F46E5";
               bg = "rgba(79,70,229,.07)";

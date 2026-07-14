@@ -385,7 +385,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
             <ul style={{ margin: "8px 0 0", paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px" }}>
               <li>The server fetches the pre-compiled layout coordinates for the target route.</li>
               <li>The exact pixel-perfect skeleton rectangles are generated as inline inline-CSS shapes inside the server HTML.</li>
-              <li>Skeletons render in the **first byte** before any client Javascript runs or hydration begins, eliminating layout jumps.</li>
+              <li>Skeletons render in the <strong>first byte</strong> before any client Javascript runs or hydration begins, eliminating layout jumps.</li>
             </ul>
           </div>
         )}
@@ -399,10 +399,10 @@ export default async function DocsChapterPage({ params }: PageProps) {
             
             <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Snapshot Lifecycle</h2>
             <p style={{ margin: 0 }}>
-              1. **Capture**: During your build pipeline, the <code>snapshot()</code> script boots a headless browser, hits your target routes, and outputs layout JSON arrays.
+              1. <strong>Capture</strong>: During your build pipeline, the <code>snapshot()</code> script boots a headless browser, hits your target routes, and outputs layout JSON arrays.
             </p>
             <p style={{ margin: 0 }}>
-              2. **Pre-render**: Import the generated JSON file inside your root entry layouts (like Next.js <code>loading.tsx</code>) to display the full page skeleton instantly on navigations.
+              2. <strong>Pre-render</strong>: Import the generated JSON file inside your root entry layouts (like Next.js <code>loading.tsx</code>) to display the full page skeleton instantly on navigations.
             </p>
           </div>
         )}
