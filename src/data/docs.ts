@@ -183,5 +183,12 @@ const release = skelly(element, {
 });
 
 // When loading is finished:
-release();`
+release();`,
+  specJsonOutputCode: `[
+  { "x": 0, "y": 10, "w": 380, "h": 22, "type": "block" },
+  { "x": 0, "y": 42, "w": 240, "h": 14, "type": "block" },
+  { "x": 0, "y": 74, "w": 44, "h": 44, "r": "50%", "type": "image" },
+  { "x": 56, "y": 80, "w": "95%", "h": 10, "type": "text" },
+  { "x": 56, "y": 98, "w": "88%", "h": 10, "type": "text" }
+]`
 };

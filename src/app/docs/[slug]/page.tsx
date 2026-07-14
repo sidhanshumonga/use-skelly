@@ -262,6 +262,24 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 </div>
               </div>
             </div>
+
+            {/* Compiled Spec JSON Output Showcase */}
+            <div style={{ marginTop: "18px", borderTop: "1px solid rgba(28,28,26,.08)", paddingTop: "24px" }}>
+              <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "0 0 10px", color: "#1C1C1A" }}>The Compiled Spec Output (JSON)</h2>
+              <p style={{ margin: "0 0 16px", fontSize: "14.5px", lineHeight: 1.6, color: "#55534C" }}>
+                When the compilation phase finishes, the layout tree is translated into a lightweight, inspectable array of coordinate specifications:
+              </p>
+              <CodeBlock filename="skeleton.json" language="json" code={docCodeSnippets.specJsonOutputCode} />
+              <p style={{ margin: "0", fontSize: "14.5px", lineHeight: 1.6, color: "#55534C" }}>
+                Each item inside the specification array maps to a target element bounds:
+              </p>
+              <ul style={{ margin: "12px 0 0", paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "8px", fontSize: "14.5px", color: "#55534C" }}>
+                <li><code>x</code> / <code>y</code>: The left and top coordinates relative to the parent wrapping boundary.</li>
+                <li><code>w</code> / <code>h</code>: The measured width and height dimensions of the shape.</li>
+                <li><code>r</code>: Optional border-radius property (e.g. <code>50%</code> for circular profiles).</li>
+                <li><code>type</code>: Element content category, mapping to <code>text</code>, <code>image</code>, or generic <code>block</code> structures.</li>
+              </ul>
+            </div>
           </div>
         )}
 
