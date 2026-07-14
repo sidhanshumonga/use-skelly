@@ -68,6 +68,22 @@ export default function Home() {
             <span>·</span>
             <span>MIT</span>
           </div>
+
+          <div style={{ marginTop: "8px" }}>
+            <a 
+              href="https://www.producthunt.com/products/skelly?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-skelly" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <img 
+                alt="Skelly - Skeletons that draw themselves — from your own UI | Product Hunt" 
+                width="250" 
+                height="54" 
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1194574&amp;theme=light&amp;t=1783987263505" 
+                style={{ borderRadius: "8px", border: "1px solid rgba(28,28,26,.06)" }}
+              />
+            </a>
+          </div>
         </div>
 
         {/* Live morphing demo */}
