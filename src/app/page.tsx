@@ -409,7 +409,7 @@ export default function Home() {
           <h2 style={{ margin: "0 0 44px", fontSize: "36px", letterSpacing: "-0.03em", fontWeight: 700 }}>
             Stop hand-rolling gray boxes.
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
             <div style={{ padding: "30px", border: "1px solid rgba(28,28,26,.1)", borderRadius: "14px", background: "#FAFAF8" }}>
               <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#8A8880", marginBottom: "18px" }}>
                 {"// hand-rolled skeletons"}
@@ -434,6 +434,30 @@ export default function Home() {
               </div>
             </div>
 
+            <div style={{ padding: "30px", border: "1px solid rgba(28,28,26,.1)", borderRadius: "14px", background: "#FAFAF8" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#8A8880", marginBottom: "18px" }}>
+                {"// compile-time json registry"}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "15px", color: "#55534C", lineHeight: 1.5 }}>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Requires running a CLI build command every time you change code</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Commits massive JSON coordinate files directly into Git history</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Shifts/breaks on layout sizing if not continuously rebuilt</span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
+                  <span>Cannot placeholder empty or undesigned page layouts</span>
+                </div>
+              </div>
+            </div>
+
             <div style={{
               padding: "30px",
               border: "1.5px solid rgba(79,70,229,.35)",
@@ -442,24 +466,24 @@ export default function Home() {
               boxShadow: "0 8px 28px rgba(79,70,229,.08)"
             }}>
               <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#4F46E5", marginBottom: "18px" }}>
-                {"// with skelly"}
+                {"// skelly (dynamic runtime)"}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "15px", color: "#3A3833", lineHeight: 1.5 }}>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>Skeletons derived from the component itself — can&apos;t drift</span>
+                  <span>Zero config: measures real layouts dynamically at runtime</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>Zero layout shift: same box, same size, guaranteed</span>
+                  <span>No compile scripts or massive JSON code-generation files</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>SSR + streaming: skeletons arrive with the HTML</span>
+                  <span>Self-healing: naturally handles responsive viewport shifts</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>One theme token; matches your design system automatically</span>
+                  <span>Ready-made presets to placeholder layouts instantly</span>
                 </div>
               </div>
             </div>

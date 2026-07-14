@@ -18,14 +18,14 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://useskelly.dev"),
   title: {
-    default: "skelly — Skeletons that draw themselves.",
+    default: "skelly — Dynamic skeleton screens for your UI",
     template: "%s | skelly"
   },
-  description: "skelly reads your rendered UI and generates pixel-accurate loading states for it — components, pages, images, text, tables. Shimmer, pulse, or optimistic. On the server too.",
-  keywords: ["skeleton loader", "react loading state", "nextjs loading", "vue skeleton", "svelte loading", "layout shift", "CLS", "web performance", "RSC"],
+  description: "Zero-configuration, pixel-perfect skeleton screens auto-extracted from your real DOM at runtime. Zero layout shift, SSR-ready skeleton loader for React, Vue, Svelte, and Vanilla JS.",
+  keywords: ["skeleton screens", "skeleton loader", "react loading state", "automatic skeleton loader", "layout-driven loader", "nextjs loading", "vue skeleton", "svelte loading", "layout shift", "CLS", "web performance", "RSC"],
   openGraph: {
-    title: "skelly — Skeletons that draw themselves.",
-    description: "Generate pixel-accurate skeleton loaders from your real component markup layout automatically.",
+    title: "skelly — Dynamic skeleton screens for your UI",
+    description: "Zero-configuration, pixel-perfect skeleton screens auto-extracted from your real DOM. Zero layout shift, SSR-ready.",
     url: "https://useskelly.dev",
     siteName: "skelly",
     locale: "en_US",
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "skelly — Skeletons that draw themselves.",
-    description: "Generate pixel-accurate skeleton loaders from your real component markup layout automatically.",
+    title: "skelly — Dynamic skeleton screens for your UI",
+    description: "Zero-configuration, pixel-perfect skeleton screens auto-extracted from your real DOM. Zero layout shift, SSR-ready.",
   },
   robots: {
     index: true,
