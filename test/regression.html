@@ -20,6 +20,12 @@
     .card h2 { font-size: 24px; line-height: 28px; margin: 0 0 12px; }
     .eyebrow { font-size: 11px; letter-spacing: 1px; color: #888; }
     .btn { display: inline-block; background: #1c1c1a; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 14px; margin-right: 8px; }
+    .hero { position: relative; overflow: hidden; background: #faf9f6; border-radius: 20px; padding: 48px; width: 720px; }
+    .orb { position: absolute; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, #cfe9ff, transparent 70%); right: -40px; top: -60px; filter: blur(40px); }
+    .ring { position: absolute; width: 120px; height: 120px; border-radius: 50%; border: 1px solid rgba(0,0,0,.06); right: 120px; bottom: 20px; }
+    .avatar { width: 48px; height: 48px; border-radius: 50%; background: #ddd; }
+    .icon { width: 16px; height: 16px; background: #ccc; display: inline-block; }
+    .iconrow { display: flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -56,7 +62,7 @@ function card() {
   return el;
 }
 
-(async () => {
+async function run() {
   __define("learn", await (await fetch("/packages/skelly/dist/learn.js")).text());
   __define("index", await (await fetch("/packages/skelly/dist/index.js")).text());
   const K = __m["index"];
@@ -125,12 +131,59 @@ function card() {
   check("an author-hidden element outside a mount is still skipped",
     K.measureLayout(authored).length, 1);
 
+  // --- decoration is not content -----------------------------------------
+  // Background orbs, glows and hairline rings were being painted as big shimmering
+  // circles over the layout they were supposed to be sitting behind.
+  const hero = document.createElement("div");
+  hero.className = "hero";
+  hero.innerHTML =
+    '<div class="orb" aria-hidden="true"></div>' +
+    '<div class="ring" aria-hidden="true"></div>' +
+    '<div class="avatar"></div>' +
+    '<h2>Plan your week with a little more clarity</h2>' +
+    '<div class="btn">Get started</div>' +
+    '<div class="iconrow"><span class="icon" aria-hidden="true"></span><span>Label</span></div>';
+  stage.appendChild(hero);
+
+  const heroSpecs = K.measureLayout(hero);
+  const widths = heroSpecs.map(s => Math.round(s.w));
+  check("a blurred background orb is not painted", widths.includes(280), false);
+  check("an aria-hidden absolute ring is not painted", widths.includes(122), false);
+  check("a real avatar keeps its circle",
+    heroSpecs.some(s => Math.round(s.w) === 48 && s.r === "50%"), true);
+  check("an aria-hidden icon that sits in flow is still content", widths.includes(16), true,
+    "only lifted-out-of-flow aria-hidden elements count as decoration");
+
+  const ignored = document.createElement("div");
+  ignored.style.width = "300px";
+  ignored.innerHTML =
+    '<div style="width:120px;height:40px;background:#eee" data-skelly-ignore></div>' +
+    '<div style="width:120px;height:40px;background:#eee"></div>';
+  stage.appendChild(ignored);
+  check("data-skelly-ignore opts an element out", K.measureLayout(ignored).length, 1);
+
+  const outside = document.createElement("div");
+  outside.style.cssText = "position:relative;width:200px;height:60px;background:#eee";
+  outside.innerHTML = '<div style="position:absolute;left:-400px;width:100px;height:40px;background:#ddd"></div>';
+  stage.appendChild(outside);
+  check("an element entirely outside the container is not painted",
+    K.measureLayout(outside).length, 0, "container itself is the walk root");
+
+  const clipTarget = card();
+  stage.appendChild(clipTarget);
+  const release5 = K.skelly(clipTarget, { visual: "shimmer" });
+  check("the overlay clips to the element it covers",
+    getComputedStyle(clipTarget.querySelector(".skelly-overlay")).overflow, "hidden");
+  release5();
+
   // --- learning loop ------------------------------------------------------
   K.clearLearnedSpecs();
   const learnHost = card();
   stage.appendChild(learnHost);
   const learned = K.learnLayout(learnHost, { name: "regression-card" });
-  check("learns a named layout", Array.isArray(learned) && learned.length > 0, true);
+  check("learns a named layout", Array.isArray(learned) && learned.length > 0, true,
+    learned ? `${learned.length} specs` : "learnLayout returned null");
+  const learnedCount = learned ? learned.length : -1;
   check("recalls what it learned",
     JSON.stringify(K.recallSpec("regression-card")), JSON.stringify(learned));
 
@@ -139,7 +192,7 @@ function card() {
   stage.appendChild(emptyTarget);
   const release4 = K.skelly(emptyTarget, { name: "regression-card" });
   check("replays a learned layout onto an empty container",
-    emptyTarget.querySelectorAll(".skelly-item").length, learned.length);
+    emptyTarget.querySelectorAll(".skelly-item").length, learnedCount);
   check("and reserves height for it",
     emptyTarget.getBoundingClientRect().height > 0, true);
   release4();
@@ -167,7 +220,16 @@ function card() {
   // Machine readable, for a headless runner.
   window.__skellyRegression = { total: results.length, failed: failed.length, results };
   document.title = failed.length ? `FAIL (${failed.length})` : `PASS (${results.length})`;
-})();
+}
+
+run().catch(err => {
+  // A thrown assertion should surface as a failure, not leave the page saying "running".
+  const summary = document.getElementById("summary");
+  summary.className = "bad";
+  summary.textContent = `suite threw: ${err && err.message}`;
+  window.__skellyRegression = { total: results.length, failed: results.length, error: String(err), results };
+  document.title = "ERROR";
+});
 </script>
 </body>
 </html>

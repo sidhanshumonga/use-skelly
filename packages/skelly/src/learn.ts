@@ -25,7 +25,7 @@ interface LearnedEntry {
   spec: SkellySpec[];
 }
 
-const STORAGE_KEY = "skelly:learned:v1";
+const STORAGE_KEY = "skelly:learned:v2";
 const MAX_ENTRIES = 120;
 
 /** A layout is stored per viewport bucket, so a desktop measurement never replays on a phone. */

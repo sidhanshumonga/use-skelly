@@ -532,6 +532,15 @@ export default async function DocsChapterPage({ params }: PageProps) {
 
             <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
               <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
+                data-skelly-ignore
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                Put it on any element that should never become a skeleton shape. Decoration is skipped automatically — anything blurred, and <code>aria-hidden</code> elements lifted out of flow with no text of their own, which is what a background orb or glow looks like. An <code>aria-hidden</code> icon sitting in flow next to a label is still treated as content. Use the attribute for whatever the heuristics miss.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
                 options.name
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>

@@ -48,6 +48,8 @@
   z-index: 10 !important;
   background: transparent !important;
   pointer-events: none !important;
+  /* The skeleton stands in for this element, so it never paints outside it. */
+  overflow: hidden !important;
 }
 
 /* Standalone skeleton — a route fallback, a preset over an empty container. There is no
