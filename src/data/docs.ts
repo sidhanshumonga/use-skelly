@@ -54,7 +54,7 @@ export const chapters: DocChapter[] = [
     key: "Theming",
     section: "Guides",
     title: "Theming",
-    intro: "Four CSS custom properties match every skeleton to your design system."
+    intro: "A handful of CSS custom properties match every skeleton to your design system."
   },
   {
     slug: "api",
@@ -117,6 +117,13 @@ router.beforeEach(() => skellyPage('dashboard'))`,
   --skelly-highlight: #F5F4F0;
   --skelly-radius: 5px;
   --skelly-speed: 1.4s;
+
+  /* structure: "surface" backing plates */
+  --skelly-surface: rgba(28, 28, 26, 0.03);
+  --skelly-surface-border: rgba(28, 28, 26, 0.08);
+
+  /* visual: "optimistic" */
+  --skelly-optimistic: rgba(79, 70, 229, 0.16);
 }`,
   cliCreateCode: `npx skelly create my-awesome-app --next
 cd my-awesome-app

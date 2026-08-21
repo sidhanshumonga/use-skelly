@@ -4,24 +4,34 @@ export interface SkellySpec {
   w: string | number;
   h: string | number;
   r?: string;
-  type?: "text" | "image" | "block";
+  type?: "text" | "image" | "block" | "surface";
   color?: string;
 }
+
+export type PresetName = "dashboard" | "article" | "feed" | "profile" | "generic";
 
 export interface SkellyOptions {
   visual?: "shimmer" | "pulse" | "optimistic" | "static";
   rows?: number;
   media?: "block" | "dominant-color" | "blurhash";
-  preset?: "dashboard" | "article" | "feed" | "profile" | "generic";
+  preset?: PresetName;
   spec?: SkellySpec[];
   radius?: string;
+  cache?: boolean;
+  /**
+   * How structural parents (cards, panels, sections) are compiled.
+   * "leaves"  — default; a parent that contains measurable content emits nothing of its own.
+   * "surface" — the parent is kept as a flat, unanimated backing plate behind its children.
+   */
+  structure?: "leaves" | "surface";
 }
 
-// Memory cache for specs compiled client-side
 const specCache = new Map<string, SkellySpec[]>();
 
-// Pre-defined relative presets
-const PRESETS: Record<string, SkellySpec[]> = {
+/** Elements already carrying a mounted skeleton, so a second call can replace it cleanly. */
+const activeReleases = new WeakMap<HTMLElement, () => void>();
+
+export const PRESETS: Record<string, SkellySpec[]> = {
   generic: [
     { x: 0, y: 10, w: 200, h: 20, type: "block" },
     { x: 0, y: 40, w: 120, h: 14, type: "block" },
@@ -51,16 +61,13 @@ const PRESETS: Record<string, SkellySpec[]> = {
     { x: 0, y: 480, w: "65%", h: 10, type: "text" }
   ],
   feed: [
-    // Post 1
     { x: 0, y: 10, w: 44, h: 44, r: "50%", type: "image" },
     { x: 56, y: 16, w: 120, h: 13, type: "text" },
     { x: 56, y: 36, w: 80, h: 10, type: "text" },
     { x: 0, y: 70, w: "95%", h: 12, type: "text" },
     { x: 0, y: 88, w: "92%", h: 12, type: "text" },
     { x: 0, y: 106, w: "60%", h: 12, type: "text" },
-    // Divider
     { x: 0, y: 140, w: "100%", h: 1, type: "block" },
-    // Post 2
     { x: 0, y: 160, w: 44, h: 44, r: "50%", type: "image" },
     { x: 56, y: 166, w: 110, h: 13, type: "text" },
     { x: 56, y: 186, w: 90, h: 10, type: "text" },
@@ -77,22 +84,117 @@ const PRESETS: Record<string, SkellySpec[]> = {
   ]
 };
 
+export const PRESET_NAMES = Object.keys(PRESETS);
+
+/** Elements that are their own visual, so their subtree is never walked. */
+const MEDIA_TAGS = new Set(["img", "svg", "video", "canvas", "picture", "iframe"]);
+
+/**
+ * FNV-1a. Used to derive stable pseudo-random values from an element path so that
+ * repeated measurements — and `snapshot()` build output — are byte-for-byte identical.
+ */
+function hashString(input: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Deterministic replacement for Math.random(), in the range [0, 1). */
+function seededUnit(seed: string): number {
+  return hashString(seed) / 4294967296;
+}
+
 /**
  * Calculates a unique layout cache key for an element.
+ * Includes the measured box, because compiled specs are absolute pixel geometry
+ * and must not be replayed at a viewport width they were not measured at.
  */
 function getElementKey(el: HTMLElement): string {
   const parts: string[] = [el.tagName.toLowerCase()];
   if (el.id) parts.push(`#${el.id}`);
-  if (el.className) {
-    const classes = el.className.split(/\s+/).filter(Boolean).sort().join(".");
+
+  const className = el.getAttribute("class");
+  if (className) {
+    const classes = className
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter(c => !c.startsWith("skelly-"))
+      .sort()
+      .join(".");
     if (classes) parts.push(`.${classes}`);
   }
-  // Add direct child tags structure to make it unique
+
   const childStructure = Array.from(el.children)
     .map(c => c.tagName.toLowerCase())
     .join("-");
   if (childStructure) parts.push(`[children:${childStructure}]`);
+
+  const rect = el.getBoundingClientRect();
+  parts.push(`@${Math.round(rect.width)}x${Math.round(rect.height)}`);
+
   return parts.join("");
+}
+
+/**
+ * Drops every compiled layout held in memory. Call after a change that alters
+ * geometry without altering markup (theme swap, font load, container resize).
+ */
+export function clearSpecCache(): void {
+  specCache.clear();
+}
+
+/**
+ * Builds the fallback skeleton, honouring `rows` when the caller asked for a
+ * specific number of text lines.
+ */
+function buildGenericSpec(rows?: number): SkellySpec[] {
+  if (!rows || rows < 1) return PRESETS.generic;
+
+  const specs: SkellySpec[] = [
+    { x: 0, y: 10, w: 200, h: 20, type: "block" },
+    { x: 0, y: 40, w: 120, h: 14, type: "block" }
+  ];
+
+  const widths = ["95%", "98%", "90%", "97%", "93%"];
+  for (let i = 0; i < rows; i++) {
+    specs.push({
+      x: 0,
+      y: 75 + i * 20,
+      w: i === rows - 1 && rows > 1 ? "60%" : widths[i % widths.length],
+      h: 10,
+      type: "text"
+    });
+  }
+
+  return specs;
+}
+
+/**
+ * The content box in container-relative coordinates. `getBoundingClientRect()` always
+ * reports the border box, whatever `box-sizing` says.
+ */
+function getContentBox(
+  el: HTMLElement,
+  style: CSSStyleDeclaration,
+  x: number,
+  y: number,
+  w: number,
+  h: number
+): { x: number; y: number; w: number; h: number } {
+  const top = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.borderTopWidth) || 0);
+  const bottom = (parseFloat(style.paddingBottom) || 0) + (parseFloat(style.borderBottomWidth) || 0);
+  const left = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.borderLeftWidth) || 0);
+  const right = (parseFloat(style.paddingRight) || 0) + (parseFloat(style.borderRightWidth) || 0);
+
+  return {
+    x: x + left,
+    y: y + top,
+    w: Math.max(0, w - left - right),
+    h: Math.max(0, h - top - bottom)
+  };
 }
 
 /**
@@ -102,10 +204,20 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
   const containerRect = container.getBoundingClientRect();
   const specs: SkellySpec[] = [];
 
-  function walk(el: HTMLElement) {
+  function walkChildren(el: HTMLElement, path: string) {
+    Array.from(el.children).forEach((c, i) => {
+      walk(c as HTMLElement, `${path}/${i}:${c.tagName.toLowerCase()}`);
+    });
+  }
+
+  function walk(el: HTMLElement, path: string) {
     if (el === container) {
-      // Don't measure container itself, only traverse children
-      Array.from(el.children).forEach(c => walk(c as HTMLElement));
+      walkChildren(el, path);
+      return;
+    }
+
+    // Never measure a skeleton we (or a previous mount) painted.
+    if (el.classList && el.classList.contains("skelly-overlay")) {
       return;
     }
 
@@ -125,14 +237,17 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
     const h = rect.height;
     const r = style.borderRadius;
 
-    // Detect images
-    const isImage = el.tagName === "IMG" || el.tagName === "SVG" || style.backgroundImage !== "none";
-    if (isImage) {
+    // Only a real raster/vector source counts as media. CSS gradients are decoration
+    // (Tailwind's bg-gradient-to-* lands on plain wrappers) and must stay structural.
+    const tag = el.tagName.toLowerCase();
+    const backgroundImage = style.backgroundImage;
+    const hasImageSource = backgroundImage !== "none" && backgroundImage.indexOf("url(") !== -1;
+
+    if (MEDIA_TAGS.has(tag) || hasImageSource) {
       specs.push({ x, y, w, h, r, type: "image" });
       return;
     }
 
-    // Detect elements that directly contain text
     let hasDirectText = false;
     for (let i = 0; i < el.childNodes.length; i++) {
       const node = el.childNodes[i];
@@ -145,20 +260,24 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
     if (hasDirectText) {
       const fontSize = parseFloat(style.fontSize);
       const lineHeight = parseFloat(style.lineHeight) || fontSize * 1.2;
-      const computedHeight = rect.height;
 
-      // Estimate line count
-      const lineCount = Math.max(1, Math.round(computedHeight / lineHeight));
-      const singleLineHeight = Math.min(computedHeight, fontSize * 0.85);
+      // Text lives in the content box. Measuring the border box instead makes a padded
+      // element (a button, a chip) look like it holds one line of text per padding band.
+      const inset = getContentBox(el, style, x, y, w, h);
+      const contentHeight = inset.h;
+      const contentWidth = inset.w;
+
+      const lineCount = Math.max(1, Math.round(contentHeight / lineHeight));
+      const singleLineHeight = Math.min(contentHeight, fontSize * 0.85);
 
       for (let i = 0; i < lineCount; i++) {
-        const lineY = y + i * lineHeight + (lineHeight - singleLineHeight) / 2;
-        // Last line gets a ragged edge if it has multiple lines
+        const lineY = inset.y + i * lineHeight + (lineHeight - singleLineHeight) / 2;
         const isLastLine = i === lineCount - 1;
-        const lineWidth = (isLastLine && lineCount > 1) ? w * (0.6 + Math.random() * 0.3) : w;
+        const ragged = 0.6 + seededUnit(`${path}#${i}`) * 0.3;
+        const lineWidth = isLastLine && lineCount > 1 ? contentWidth * ragged : contentWidth;
 
         specs.push({
-          x,
+          x: inset.x,
           y: lineY,
           w: lineWidth,
           h: singleLineHeight,
@@ -166,21 +285,38 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
           type: "text"
         });
       }
-    } else {
-      // If it's a structural container or layout leaf without text, add it if it has an explicit background/border
-      const hasBackground = style.backgroundColor !== "rgba(0, 0, 0, 0)" && style.backgroundColor !== "transparent";
-      const hasBorder = style.borderStyle !== "none" && parseFloat(style.borderWidth) > 0;
-      
-      if (hasBackground || hasBorder) {
-        specs.push({ x, y, w, h, r, type: "block" });
-      }
-      
-      // Keep traversing children
-      Array.from(el.children).forEach(c => walk(c as HTMLElement));
+
+      return;
+    }
+
+    // A CSS gradient is decoration, not media, but it is still something painted —
+    // it keeps the element visible as a block rather than dropping it entirely.
+    const hasBackgroundColor =
+      style.backgroundColor !== "rgba(0, 0, 0, 0)" && style.backgroundColor !== "transparent";
+    const hasBackground = hasBackgroundColor || backgroundImage !== "none";
+    const hasBorder = style.borderStyle !== "none" && parseFloat(style.borderWidth) > 0;
+
+    const specCountBefore = specs.length;
+    walkChildren(el, path);
+    const subtreeProducedSpecs = specs.length > specCountBefore;
+
+    if (!hasBackground && !hasBorder) {
+      return;
+    }
+
+    // A card, panel or section is scaffolding, not content. Painting it as a full-size
+    // block hides everything inside it behind an identical fill — same gradient, same
+    // phase — so the whole component reads as one solid rectangle. Emit a block only
+    // when the subtree contributed nothing of its own, i.e. this really is the thing
+    // on screen. Callers who want the card outline back opt into a flat surface.
+    if (!subtreeProducedSpecs) {
+      specs.push({ x, y, w, h, r, type: "block" });
+    } else if (options.structure === "surface") {
+      specs.splice(specCountBefore, 0, { x, y, w, h, r, type: "surface" });
     }
   }
 
-  walk(container);
+  walk(container, "");
   return specs;
 }
 
@@ -190,72 +326,83 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
 export function skelly(element: HTMLElement | null, options: SkellyOptions = {}): () => void {
   if (!element) return () => {};
 
+  // Replace rather than stack: a second call on a live container would otherwise
+  // leave the first overlay orphaned and its children permanently hidden.
+  const previousRelease = activeReleases.get(element);
+  if (previousRelease) previousRelease();
+
   const visual = options.visual || "shimmer";
   const media = options.media || "block";
+  const useCache = options.cache !== false;
 
   let specs: SkellySpec[] = [];
 
-  // Determine spec to render
   if (options.spec) {
     specs = options.spec;
+  } else if (options.preset === "generic") {
+    specs = buildGenericSpec(options.rows);
   } else if (options.preset && PRESETS[options.preset]) {
     specs = PRESETS[options.preset];
   } else {
-    // Check cache
-    const cacheKey = getElementKey(element);
-    const cached = specCache.get(cacheKey);
-    
+    const cacheKey = `${getElementKey(element)}|${options.structure || "leaves"}`;
+    const cached = useCache ? specCache.get(cacheKey) : undefined;
+
     if (cached && cached.length > 0) {
       specs = cached;
     } else {
-      // Measure real DOM layout
       specs = measureLayout(element, options);
       if (specs.length > 0) {
-        specCache.set(cacheKey, specs);
+        if (useCache) specCache.set(cacheKey, specs);
       } else {
-        // Fallback to generic preset if measurement yielded nothing
-        specs = PRESETS.generic;
+        specs = buildGenericSpec(options.rows);
       }
     }
   }
 
-  // Create skeleton overlay element
   const overlay = document.createElement("div");
   overlay.className = "skelly-overlay";
-  overlay.setAttribute("role", "alert");
-  overlay.setAttribute("aria-busy", "true");
+  overlay.setAttribute("role", "status");
   overlay.setAttribute("aria-live", "polite");
+  overlay.setAttribute("aria-label", "Loading");
 
-  // Keep track of elements hidden
   const originalStyleMap = new Map<HTMLElement, string>();
 
-  // Hide children
   const children = Array.from(element.children) as HTMLElement[];
   children.forEach(child => {
     originalStyleMap.set(child, child.style.visibility);
     child.style.visibility = "hidden";
   });
 
-  // Render specifications
+  // Only promote to a positioning context when the element does not already have one;
+  // forcing `relative` would break a container the author positioned absolutely or fixed.
+  const previousInlinePosition = element.style.position;
+  const needsPositioning = window.getComputedStyle(element).position === "static";
+  if (needsPositioning) {
+    element.style.position = "relative";
+  }
+
+  const previousAriaBusy = element.getAttribute("aria-busy");
+  element.setAttribute("aria-busy", "true");
+
   specs.forEach(item => {
     const el = document.createElement("div");
-    el.className = `skelly-item skelly-${visual}`;
-    
-    // Style absolute positions
+    // A surface is scaffolding behind the skeleton, so it never animates.
+    el.className = item.type === "surface" ? "skelly-item skelly-surface" : `skelly-item skelly-${visual}`;
+    el.setAttribute("aria-hidden", "true");
+
     el.style.left = typeof item.x === "number" ? `${item.x}px` : item.x;
     el.style.top = typeof item.y === "number" ? `${item.y}px` : item.y;
     el.style.width = typeof item.w === "number" ? `${item.w}px` : item.w;
     el.style.height = typeof item.h === "number" ? `${item.h}px` : item.h;
-    
+
     if (item.r) el.style.borderRadius = item.r;
     if (options.radius) el.style.borderRadius = options.radius;
 
-    // Media adjustments
     if (item.type === "image") {
       if (media === "dominant-color" && item.color) {
         el.style.background = item.color;
       } else if (media === "blurhash") {
-        el.style.background = "linear-gradient(45deg, #E4E2DC, #EDEBE5)";
+        el.style.background = "linear-gradient(45deg, var(--skelly-base), var(--skelly-highlight))";
       }
     }
 
@@ -265,17 +412,38 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
   element.classList.add("skelly-container");
   element.appendChild(overlay);
 
-  // Return release function
-  return () => {
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+
     if (overlay.parentNode === element) {
       element.removeChild(overlay);
     }
     element.classList.remove("skelly-container");
+
+    if (needsPositioning) {
+      element.style.position = previousInlinePosition;
+    }
+
+    if (previousAriaBusy === null) {
+      element.removeAttribute("aria-busy");
+    } else {
+      element.setAttribute("aria-busy", previousAriaBusy);
+    }
+
     children.forEach(child => {
       const orig = originalStyleMap.get(child);
       if (orig !== undefined) {
         child.style.visibility = orig;
       }
     });
+
+    if (activeReleases.get(element) === release) {
+      activeReleases.delete(element);
+    }
   };
+
+  activeReleases.set(element, release);
+  return release;
 }

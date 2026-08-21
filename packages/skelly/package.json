@@ -1,7 +1,19 @@
 {
   "name": "use-skelly",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Skeletons that draw themselves. Layout-driven skeleton state library.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sidhanshumonga/use-skelly.git",
+    "directory": "packages/skelly"
+  },
+  "homepage": "https://useskelly.dev",
+  "bugs": {
+    "url": "https://github.com/sidhanshumonga/use-skelly/issues"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -32,7 +44,8 @@
     "./build": {
       "types": "./dist/build.d.ts",
       "default": "./dist/build.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"

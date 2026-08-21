@@ -399,7 +399,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
             
             <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Snapshot Lifecycle</h2>
             <p style={{ margin: 0 }}>
-              1. <strong>Capture</strong>: During your build pipeline, the <code>snapshot()</code> script boots a headless browser, hits your target routes, and outputs layout JSON arrays.
+              1. <strong>Capture</strong>: Compile a route&rsquo;s layout in the browser with <code>measureLayout()</code>, then hand it to <code>snapshot()</code> during your build pipeline to write the JSON array to disk. Called without a spec, <code>snapshot()</code> falls back to the built-in preset that matches the route.
             </p>
             <p style={{ margin: 0 }}>
               2. <strong>Pre-render</strong>: Import the generated JSON file inside your root entry layouts (like Next.js <code>loading.tsx</code>) to display the full page skeleton instantly on navigations.
@@ -462,7 +462,7 @@ export default async function DocsChapterPage({ params }: PageProps) {
                 options.rows
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                Configures the number of loading rows to display. Useful for table and list layouts when you want to mock extra content lines while fetching data. Defaults to the measured line count.
+                Configures the number of text rows in the generic skeleton — the one used by <code>preset=&quot;generic&quot;</code> and by the fallback when a container has nothing measurable in it. Measured layouts always derive their own line count from the real markup.
               </div>
             </div>
 
@@ -476,11 +476,29 @@ export default async function DocsChapterPage({ params }: PageProps) {
             </div>
 
             <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
-              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px", color: "#4F46E5" }}>
-                snapshot(route: string, options?: SnapshotOptions) =&gt; Promise&lt;SkellySpec[]&gt;
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
+                options.structure
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
-                Runs a headless Chromium process during build time, navigates to the target route, measures container layout tree bounds, and emits the coordinate specifications JSON file.
+                Controls how structural parents — cards, panels, sections — are compiled. <code>&quot;leaves&quot;</code> (default) lets a parent that holds measurable content emit nothing of its own, so the skeleton reads as its contents. <code>&quot;surface&quot;</code> keeps the parent as a flat, unanimated backing plate behind its children, preserving the card outline.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
+                options.cache
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                Compiled layouts are cached per container, keyed on its markup and measured box. Set to <code>false</code> to re-measure on every mount. Compiled specs are absolute pixel geometry, so call <code>clearSpecCache()</code> after anything that changes geometry without changing markup — a font load, a theme swap, a container resize.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px", color: "#4F46E5" }}>
+                snapshot(route: string, options?: SnapshotOptions) =&gt; Promise&lt;void&gt;
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                Writes a route&rsquo;s skeleton spec into a JSON file for server inlining. Pass <code>spec</code> with a layout you compiled in the browser via <code>measureLayout()</code> and it is written verbatim; without one, <code>snapshot()</code> infers a built-in preset from the route path. It does not run a browser itself.
               </div>
             </div>
           </div>

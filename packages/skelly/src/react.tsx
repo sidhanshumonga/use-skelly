@@ -1,38 +1,47 @@
+"use client";
+
 import React, { useRef, useEffect } from "react";
 import { skelly, SkellyOptions } from "./index";
 
 export interface SkellyProps extends SkellyOptions {
-  loading: boolean;
+  /** Defaults to `true` so `<Skelly />` works as a standalone Suspense/route fallback. */
+  loading?: boolean;
   children?: React.ReactNode;
   style?: React.CSSProperties;
   className?: string;
   routeAuto?: boolean;
 }
 
+function withRouteSpec(options: SkellyOptions, routeAuto?: boolean): SkellyOptions {
+  if (!routeAuto || typeof window === "undefined") return options;
+
+  const routeKey = window.location.pathname;
+  const globalSpecs = (window as any).__skelly_specs;
+  if (globalSpecs && globalSpecs[routeKey]) {
+    return { ...options, spec: globalSpecs[routeKey] };
+  }
+
+  return options;
+}
+
 /**
  * React hook to hook skelly directly onto a custom ref.
  */
-export function useSkelly(loading: boolean, options: SkellyOptions & { routeAuto?: boolean } = {}) {
-  const ref = useRef<HTMLElement | null>(null);
+export function useSkelly<T extends HTMLElement = HTMLDivElement>(
+  loading: boolean,
+  options: SkellyOptions & { routeAuto?: boolean } = {}
+) {
+  const ref = useRef<T | null>(null);
+  const { routeAuto, ...skellyOptions } = options;
+  const optionsKey = JSON.stringify(skellyOptions);
 
   useEffect(() => {
-    if (loading && ref.current) {
-      let finalOptions = { ...options };
+    if (!loading || !ref.current) return;
 
-      // Handle route auto matching
-      if (options.routeAuto && typeof window !== "undefined") {
-        const routeKey = window.location.pathname;
-        // Check if there is an inlined build-time spec under window.__skelly_specs
-        const globalSpecs = (window as any).__skelly_specs;
-        if (globalSpecs && globalSpecs[routeKey]) {
-          finalOptions.spec = globalSpecs[routeKey];
-        }
-      }
-
-      const release = skelly(ref.current, finalOptions);
-      return () => release();
-    }
-  }, [loading, JSON.stringify(options)]);
+    const release = skelly(ref.current, withRouteSpec(JSON.parse(optionsKey), routeAuto));
+    return () => release();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, optionsKey, routeAuto]);
 
   return ref;
 }
@@ -41,7 +50,7 @@ export function useSkelly(loading: boolean, options: SkellyOptions & { routeAuto
  * Standard Skelly wrapper component for React.
  */
 export function Skelly({
-  loading,
+  loading = true,
   children,
   style,
   className,
@@ -49,23 +58,15 @@ export function Skelly({
   ...options
 }: SkellyProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const optionsKey = JSON.stringify(options);
 
   useEffect(() => {
-    if (loading && containerRef.current) {
-      let finalOptions = { ...options };
+    if (!loading || !containerRef.current) return;
 
-      if (routeAuto && typeof window !== "undefined") {
-        const routeKey = window.location.pathname;
-        const globalSpecs = (window as any).__skelly_specs;
-        if (globalSpecs && globalSpecs[routeKey]) {
-          finalOptions.spec = globalSpecs[routeKey];
-        }
-      }
-
-      const release = skelly(containerRef.current, finalOptions);
-      return () => release();
-    }
-  }, [loading, JSON.stringify(options), routeAuto]);
+    const release = skelly(containerRef.current, withRouteSpec(JSON.parse(optionsKey), routeAuto));
+    return () => release();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, optionsKey, routeAuto]);
 
   return (
     <div
@@ -79,14 +80,12 @@ export function Skelly({
   );
 }
 
-// React Suspense Integration
 export interface SkellySuspenseProps {
   fallback: React.ReactElement;
   children: React.ReactNode;
 }
 
 export function SkellySuspense({ fallback, children }: SkellySuspenseProps) {
-  // Renders the fallback when children suspends
   return (
     <React.Suspense fallback={fallback}>
       {children}
@@ -94,5 +93,4 @@ export function SkellySuspense({ fallback, children }: SkellySuspenseProps) {
   );
 }
 
-// Attach Suspense to Skelly namespace
 (Skelly as any).Suspense = SkellySuspense;
