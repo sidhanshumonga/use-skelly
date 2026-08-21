@@ -411,6 +411,39 @@ export default async function DocsChapterPage({ params }: PageProps) {
           </div>
         )}
 
+        {slug === "learned-skeletons" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
+            <p style={{ margin: 0 }}>
+              A measured skeleton is only available once the markup it measures has rendered — which is never the case at the moment you actually need it. Give a layout a <code>name</code> and skelly closes that gap: it measures the real content when it appears, keeps the result, and replays it the next time that layout is loading.
+            </p>
+            <CodeBlock filename="ArticleCard.jsx" language="react" code={docCodeSnippets.learnedCode} />
+
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Why not snapshot at build time</h2>
+            <p style={{ margin: 0 }}>
+              Because a snapshot is a copy, and copies drift. A build-time artifact needs a headless browser, a CLI pass, and the discipline to re-run it every time markup changes — and when someone forgets, the skeleton is quietly wrong with nothing to signal it.
+            </p>
+            <p style={{ margin: 0 }}>
+              A learned layout is overwritten by the next successful render. Edit the component and the correction happens the first time anyone looks at it. There is no artifact to regenerate and no command to remember.
+            </p>
+
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Per breakpoint</h2>
+            <p style={{ margin: 0 }}>
+              Layouts are stored per viewport bucket — <code>0</code>, <code>480</code>, <code>768</code>, <code>1024</code>, <code>1280</code>, <code>1536</code> by default, overridable with <code>breakpoints</code>. A layout learned on a desktop is never replayed on a phone; each width learns itself the first time someone visits at that size.
+            </p>
+
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Seeding the first visit</h2>
+            <p style={{ margin: 0 }}>
+              A brand-new visitor has learned nothing yet, so they get the generic skeleton. To give them the real one, export what your own browser learned, commit it, and render it from the server with <code>&lt;SkellySpecs&gt;</code> — the layouts ship in the HTML, and each browser replaces them with its own measurements as it goes.
+            </p>
+            <CodeBlock filename="layout.tsx" language="react" code={docCodeSnippets.learnedExportCode} />
+
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Where layouts live</h2>
+            <p style={{ margin: 0 }}>
+              In <code>localStorage</code> under <code>skelly:learned:v1</code>, capped at 120 entries with the oldest evicted first. Pass <code>storage</code> to use a different store, or <code>storage: null</code> to keep everything in memory for the page&rsquo;s lifetime. Nothing leaves the browser.
+            </p>
+          </div>
+        )}
+
         {slug === "theming" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
             <p style={{ margin: 0 }}>
@@ -494,6 +527,33 @@ export default async function DocsChapterPage({ params }: PageProps) {
               </div>
               <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
                 Compiled layouts are cached per container, keyed on its markup and measured box. Set to <code>false</code> to re-measure on every mount. Compiled specs are absolute pixel geometry, so call <code>clearSpecCache()</code> after anything that changes geometry without changing markup — a font load, a theme swap, a container resize.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px" }}>
+                options.name
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                A stable identity for a layout. With one, skelly measures the real content when it renders, stores it per viewport bucket, and replays it on later loads — including before this component has ever mounted. See <Link href="/docs/learned-skeletons" style={{ color: "#4F46E5" }}>Learned skeletons</Link>.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px", color: "#4F46E5" }}>
+                learnLayout(element, options) · recallSpec(name, options)
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                The manual halves of the same loop, for vanilla usage. <code>learnLayout()</code> measures what is on screen and stores it under <code>options.name</code>; <code>recallSpec()</code> returns what was learned for the current viewport, or null. The React wrapper calls both for you.
+              </div>
+            </div>
+
+            <div style={{ padding: "18px 22px", border: "1px solid rgba(28,28,26,.09)", borderRadius: "14px", background: "#fff" }}>
+              <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "14.5px", fontWeight: 600, marginBottom: "5px", color: "#4F46E5" }}>
+                exportLearnedSpecs() · importLearnedSpecs() · clearLearnedSpecs()
+              </div>
+              <div style={{ fontSize: "14.5px", color: "#55534C", lineHeight: 1.6 }}>
+                Move learned layouts in and out as <code>{"{ \"name@breakpoint\": spec }"}</code>. Export from a browser that has used the app, commit the result, and render it with <code>&lt;SkellySpecs&gt;</code> so first-time visitors get real skeletons too.
               </div>
             </div>
 

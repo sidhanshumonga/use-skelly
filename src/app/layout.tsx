@@ -18,14 +18,14 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://useskelly.dev"),
   title: {
-    default: "skelly — Dynamic skeleton screens for your UI",
+    default: "skelly — Skeleton screens that learn your UI",
     template: "%s | skelly"
   },
-  description: "Zero-configuration, pixel-perfect skeleton screens auto-extracted from your real DOM at runtime. Zero layout shift, SSR-ready skeleton loader for React, Vue, Svelte, and Vanilla JS.",
-  keywords: ["skeleton screens", "skeleton loader", "react loading state", "automatic skeleton loader", "layout-driven loader", "nextjs loading", "vue skeleton", "svelte loading", "layout shift", "CLS", "web performance", "RSC"],
+  description: "Skeleton loaders measured from your real DOM at runtime, then remembered — so the next load paints your actual layout. No build step, no headless browser, no JSON to regenerate. React, Next.js, Vue, Svelte and vanilla JS.",
+  keywords: ["skeleton screens", "skeleton loader", "self-learning skeleton", "skeleton loader without build step", "automatic skeleton loader", "react loading state", "nextjs loading.tsx skeleton", "layout-driven loader", "vue skeleton", "svelte loading", "layout shift", "CLS", "web performance", "RSC", "suspense fallback"],
   openGraph: {
-    title: "skelly — Dynamic skeleton screens for your UI",
-    description: "Zero-configuration, pixel-perfect skeleton screens auto-extracted from your real DOM. Zero layout shift, SSR-ready.",
+    title: "skelly — Skeleton screens that learn your UI",
+    description: "Measured from your real DOM, then remembered. Pixel-accurate skeletons with no build step and nothing to regenerate.",
     url: "https://useskelly.dev",
     siteName: "skelly",
     locale: "en_US",
@@ -33,13 +33,30 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "skelly — Dynamic skeleton screens for your UI",
-    description: "Zero-configuration, pixel-perfect skeleton screens auto-extracted from your real DOM. Zero layout shift, SSR-ready.",
+    title: "skelly — Skeleton screens that learn your UI",
+    description: "Measured from your real DOM, then remembered. Pixel-accurate skeletons with no build step and nothing to regenerate.",
+  },
+  alternates: {
+    canonical: "https://useskelly.dev",
   },
   robots: {
     index: true,
     follow: true,
   }
+};
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "skelly",
+  alternateName: "use-skelly",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Any",
+  description:
+    "Skeleton loaders measured from your real DOM at runtime and remembered, so the next load paints your actual layout without a build step.",
+  url: "https://useskelly.dev",
+  license: "https://opensource.org/licenses/MIT",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }
 };
 
 import Script from "next/script";
@@ -52,6 +69,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSans.variable} ${jetbrainsMono.variable}`}>
       <body style={{ fontFamily: "var(--font-instrument-sans), system-ui, sans-serif" }}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         {/* Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KS4J1R6NP9"

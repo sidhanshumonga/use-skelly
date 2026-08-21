@@ -1,10 +1,10 @@
 # use-skelly
 
-Skeletons that draw themselves. A zero-dependency, layout-driven skeleton state library.
+Skeleton screens that learn your UI. A zero-dependency, layout-driven skeleton state library.
 
 ---
 
-**use-skelly** measures your actual rendered HTML elements (text lines, avatars, images, tables, grid blocks) and compiles them into a pixel-accurate skeleton overlay. 
+**use-skelly** measures your actual rendered HTML elements (text lines, avatars, images, tables, grid blocks) and compiles them into a pixel-accurate skeleton overlay — then remembers what it measured, so the next load paints your real layout instead of a guess. 
 
 Instead of writing custom skeleton loading states for every single component, simply wrap your subtree and let `use-skelly` do the work.
 
@@ -48,6 +48,55 @@ function UserProfile({ isLoading, userData }) {
   );
 }
 ```
+
+---
+
+## 🧠 Skeletons that learn
+
+A measured skeleton is only available once the markup it measures has rendered — which is
+never the case at the moment you need it. Give a layout a `name` and that gap closes:
+
+```tsx
+<Skelly name="article-card" loading={isLoading}>
+  <Article data={data} />
+</Skelly>
+```
+
+skelly measures the real content when it appears, stores it per viewport bucket, and replays
+it the next time that layout is loading — including before the component has ever mounted.
+
+- **1st load** — nothing learned yet, generic skeleton
+- **2nd load** — your actual layout, measured from your own DOM
+- **after an edit** — re-measured on the next render, so it cannot go stale
+
+That last point is the whole argument against snapshotting at build time. A build artifact
+needs a headless browser, a CLI pass, and the discipline to re-run it whenever markup
+changes; when someone forgets, the skeleton is quietly wrong. A learned layout is overwritten
+by the next successful render.
+
+Layouts live in `localStorage` under `skelly:learned:v1`, capped at 120 entries. Pass
+`storage` for a different store, or `storage: null` to keep them in memory only. Nothing
+leaves the browser.
+
+### Seeding the first visit
+
+Export what your browser learned, commit it, and render it from the server so new visitors
+get real skeletons too:
+
+```tsx
+import { exportLearnedSpecs } from "use-skelly";
+copy(JSON.stringify(exportLearnedSpecs(), null, 2));
+```
+
+```tsx
+// app/layout.tsx
+import { SkellySpecs } from "use-skelly/react";
+import specs from "./skelly-specs.json";
+
+<SkellySpecs specs={specs}>{children}</SkellySpecs>
+```
+
+The layouts ship in the HTML, and each browser replaces them with its own measurements.
 
 ---
 

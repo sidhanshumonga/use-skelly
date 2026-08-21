@@ -50,6 +50,13 @@ export const chapters: DocChapter[] = [
     intro: "Snapshot entire routes at build time for instant full-page loading states on navigation."
   },
   {
+    slug: "learned-skeletons",
+    key: "Learned",
+    section: "Guides",
+    title: "Learned skeletons",
+    intro: "Measure the real layout once, remember it, and paint it on every load after — no build step, nothing to regenerate."
+  },
+  {
     slug: "theming",
     key: "Theming",
     section: "Guides",
@@ -124,6 +131,40 @@ await snapshot('/dashboard', {
 
 // runtime — instant full-page skeleton on navigation
 router.beforeEach(() => skellyPage('dashboard'))`,
+  learnedCode: `import { Skelly } from 'use-skelly/react'
+
+// Give the layout a name and it starts learning.
+function ArticleCard({ id }) {
+  const { data, isLoading } = useArticle(id)
+
+  return (
+    <Skelly name="article-card" loading={isLoading}>
+      <Article data={data} />
+    </Skelly>
+  )
+}
+
+// 1st load  — nothing learned yet, generic skeleton
+// 2nd load  — the real layout, measured from your own DOM
+// after an edit — re-measured on the next render, never stale`,
+  learnedExportCode: `// In the browser (a dev route, or your e2e suite):
+import { exportLearnedSpecs } from 'use-skelly'
+
+copy(JSON.stringify(exportLearnedSpecs(), null, 2))
+// -> { "article-card@1280": [ ... ], "article-card@768": [ ... ] }
+
+// Commit it, then seed every first-time visitor from the server:
+// app/layout.tsx
+import { SkellySpecs } from 'use-skelly/react'
+import specs from './skelly-specs.json'
+
+export default function RootLayout({ children }) {
+  return (
+    <html><body>
+      <SkellySpecs specs={specs}>{children}</SkellySpecs>
+    </body></html>
+  )
+}`,
   themingCode: `:root {
   --skelly-base: #E4E2DC;
   --skelly-highlight: #F5F4F0;

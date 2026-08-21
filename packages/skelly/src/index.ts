@@ -8,9 +8,13 @@ export interface SkellySpec {
   color?: string;
 }
 
+import { recallSpec, rememberSpec, LearnOptions } from "./learn";
+
+export * from "./learn";
+
 export type PresetName = "dashboard" | "article" | "feed" | "profile" | "generic";
 
-export interface SkellyOptions {
+export interface SkellyOptions extends LearnOptions {
   visual?: "shimmer" | "pulse" | "optimistic" | "static";
   rows?: number;
   media?: "block" | "dominant-color" | "blurhash";
@@ -24,6 +28,11 @@ export interface SkellyOptions {
    * "surface" — the parent is kept as a flat, unanimated backing plate behind its children.
    */
   structure?: "leaves" | "surface";
+  /**
+   * Persist what was measured under `name` and replay it next time. Requires `name`.
+   * Defaults to true.
+   */
+  learn?: boolean;
 }
 
 const specCache = new Map<string, SkellySpec[]>();
@@ -399,7 +408,10 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
   const hasContent = element.children.length > 0;
 
   let specs: SkellySpec[];
-  const staticSpec = resolveStaticSpec(options, hasContent);
+  // A layout learned from this app's own DOM beats any preset guess, and unlike a
+  // measure pass it is available before the real markup has ever rendered.
+  const recalled = options.name ? recallSpec(options.name, options) : null;
+  const staticSpec = options.spec || recalled || resolveStaticSpec(options, hasContent);
 
   if (staticSpec) {
     specs = staticSpec;
@@ -501,4 +513,24 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
 
   activeReleases.set(element, release);
   return release;
+}
+
+/**
+ * Measure what is currently on screen and remember it under `options.name`, so the next
+ * load of this layout can paint a real skeleton instead of a generic placeholder.
+ *
+ * Call it once the real content has rendered. Each viewport bucket is learned separately,
+ * and every successful call overwrites what was there — so a layout cannot go stale the
+ * way a build-time snapshot does. Returns the spec it stored, or null if there was
+ * nothing measurable.
+ */
+export function learnLayout(element: HTMLElement | null, options: SkellyOptions = {}): SkellySpec[] | null {
+  if (!element || !options.name || options.learn === false) return null;
+  if (element.querySelector(".skelly-overlay")) return null;
+
+  const specs = measureLayout(element, options);
+  if (specs.length === 0) return null;
+
+  rememberSpec(options.name, specs, options);
+  return specs;
 }

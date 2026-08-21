@@ -91,7 +91,8 @@ export const Skelly = defineComponent({
     media: { type: String, default: "block" },
     preset: { type: String },
     radius: { type: String },
-    spec: { type: Array as () => SkellySpec[] }
+    spec: { type: Array as () => SkellySpec[] },
+    name: { type: String }
   },
   setup(props, { slots }) {
     const rootRef = ref<HTMLElement | null>(null);
@@ -109,7 +110,8 @@ export const Skelly = defineComponent({
           media: props.media as any,
           preset: props.preset as any,
           radius: props.radius,
-          spec: props.spec
+          spec: props.spec,
+          name: props.name
         });
       }
     };
@@ -121,7 +123,7 @@ export const Skelly = defineComponent({
     });
 
     watch(
-      () => [props.loading, props.visual, props.rows, props.media, props.preset, props.radius, props.spec],
+      () => [props.loading, props.visual, props.rows, props.media, props.preset, props.radius, props.spec, props.name],
       applySkelly
     );
 
