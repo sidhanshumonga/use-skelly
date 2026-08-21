@@ -32,7 +32,8 @@ export default function CopyInstallButton({ command, variant = "light" }: CopyIn
       color: "#E8E6E0",
       padding: isDark ? "14px 22px" : "13px 18px",
       borderRadius: "10px",
-      boxShadow: isDark ? "none" : "0 4px 16px rgba(28,28,26,.14)"
+      boxShadow: isDark ? "none" : "0 4px 16px rgba(28,28,26,.14)",
+      whiteSpace: "nowrap"
     }}>
       <span style={{ color: "#8A8880", userSelect: "none" }}>$</span>
       <span>{command}</span>

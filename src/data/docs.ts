@@ -93,6 +93,49 @@ export const chapters: DocChapter[] = [
   }
 ];
 
+export const agentPrompt = `Add use-skelly to this project and use it for every loading state.
+
+1. Install it:  npm i use-skelly
+2. Import the stylesheet once, at the app root:  import "use-skelly/style.css"
+
+3. Find every hand-written skeleton, shimmer or placeholder component, and every
+   \`isLoading ? <Skeleton /> : <Content />\` branch.
+
+4. Replace each one with a wrapper around the REAL content:
+
+     import { Skelly } from "use-skelly/react";
+
+     <Skelly name="article-card" loading={isLoading}>
+       <ArticleCard data={data} />
+     </Skelly>
+
+   The children always render. Skelly measures them and paints a skeleton over the
+   top while loading, so there is no second copy of the layout to keep in sync.
+   Delete the skeleton components you replace.
+
+5. Give every wrapper a stable, unique \`name\`. That is what makes it learn: the real
+   layout is measured once it renders, stored per breakpoint, and replayed on later
+   loads — including before that component has mounted. Without a name it falls back
+   to a generic shape.
+
+6. A Next.js \`loading.tsx\` or a Suspense fallback has no DOM to measure, because it
+   renders instead of the page. Use a preset there:
+
+     export default function Loading() {
+       return <Skelly preset="dashboard" />;
+     }
+
+   Presets: dashboard | article | feed | profile | generic
+
+7. Mark purely decorative elements — background orbs, glows, gradient blobs — with
+   \`data-skelly-ignore\` so they do not become skeleton shapes.
+
+Notes:
+- There is no build step, no CLI and no config file. Do not add one.
+- Other frameworks: use-skelly/vue, use-skelly/svelte, or skelly(el, options) for
+  vanilla JS.
+- Docs: https://useskelly.dev/docs`;
+
 export const docCodeSnippets = {
   quickStartCode: `import { Skelly } from 'use-skelly/react'
 
