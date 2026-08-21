@@ -50,6 +50,20 @@
   pointer-events: none !important;
 }
 
+/* Standalone skeleton — a route fallback, a preset over an empty container. There is no
+   real content to borrow height from, so the overlay joins normal flow and carries the
+   spec's extent, reserving its own space instead of spilling over what follows. */
+.skelly-overlay-flow {
+  position: relative !important;
+  height: var(--skelly-overlay-height, auto) !important;
+}
+
+/* Server-rendered skeletons hide content by rule rather than by inline style, since
+   there is no mount step to walk the children. */
+.skelly-container > *:not(.skelly-overlay) {
+  visibility: hidden !important;
+}
+
 /* Skeleton Items */
 .skelly-item {
   position: absolute !important;

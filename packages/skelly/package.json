@@ -1,6 +1,6 @@
 {
   "name": "use-skelly",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Skeletons that draw themselves. Layout-driven skeleton state library.",
   "repository": {
     "type": "git",

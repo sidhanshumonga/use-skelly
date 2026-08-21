@@ -51,6 +51,41 @@ function UserProfile({ isLoading, userData }) {
 
 ---
 
+## ⚡ Server rendering & `loading.tsx`
+
+A skeleton whose layout is known without touching the DOM is rendered on the server as real
+elements, so it ships in the initial HTML and paints on first paint — no JavaScript required.
+That is what makes `<Skelly>` work as a Next.js route fallback:
+
+```tsx
+// app/dashboard/loading.tsx
+import { Skelly } from "use-skelly/react";
+
+export default function Loading() {
+  return <Skelly preset="dashboard" visual="shimmer" />;
+}
+```
+
+Three cases need no measurement and all three are server rendered: an explicit `spec`, a
+`preset`, and a container with no children (which resolves to the generic skeleton).
+
+A **measured** skeleton cannot be — measuring means reading geometry off real markup, and in a
+`loading.tsx` the page it would measure has not rendered; the fallback renders instead of it.
+Those mount after hydration, which is right for a client-side loading state and wrong for a
+route fallback. So wrap real children when the DOM exists, and reach for a preset or a
+compiled spec when it does not:
+
+```tsx
+<Skelly loading={isLoading}><ProfileCard user={data} /></Skelly>  // measured, client-side
+<Skelly preset="profile" />                                       // server rendered
+```
+
+Standalone skeletons reserve their own height. Spec items are absolutely positioned, so with no
+real content underneath the overlay joins normal flow and carries the spec's extent rather than
+collapsing and painting over whatever follows.
+
+---
+
 ## 🎛️ Tuning the compile
 
 `skelly()` walks your markup and decides what each element is. A few options steer that:

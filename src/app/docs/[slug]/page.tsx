@@ -374,19 +374,23 @@ export default async function DocsChapterPage({ params }: PageProps) {
         {slug === "ssr-and-streaming" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
             <p style={{ margin: 0 }}>
-              Skelly supports server-side rendering (SSR) and React Server Components (RSC) out of the box. By integrating our Next.js configuration wrapper, you can inline layout coordinate specifications directly into the initial HTML response.
+              A skeleton whose layout is known without touching the DOM is rendered on the server as real elements, so it arrives in the initial HTML and paints before any JavaScript runs. That is what makes <code>&lt;Skelly&gt;</code> usable as a Next.js <code>loading.tsx</code> or a Suspense fallback, where there is no client runtime yet to mount into.
             </p>
-            <CodeBlock filename="next.config.js" language="js" code={docCodeSnippets.ssrCode} />
-            
-            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>How it achieves Zero-CLS SSR</h2>
+            <CodeBlock filename="app/dashboard/loading.tsx" language="react" code={docCodeSnippets.ssrCode} />
+
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Which skeletons can be server rendered</h2>
             <p style={{ margin: 0 }}>
-              During build time, Skelly compiles layout structures to static files. When a server-side request arrives:
+              Three cases need no measurement, and all three ship in the server response: an explicit <code>spec</code>, a <code>preset</code>, and a container with no children — a standalone route fallback, which resolves to the generic skeleton.
             </p>
-            <ul style={{ margin: "8px 0 0", paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "6px" }}>
-              <li>The server fetches the pre-compiled layout coordinates for the target route.</li>
-              <li>The exact pixel-perfect skeleton rectangles are generated as inline inline-CSS shapes inside the server HTML.</li>
-              <li>Skeletons render in the <strong>first byte</strong> before any client Javascript runs or hydration begins, eliminating layout jumps.</li>
-            </ul>
+            <p style={{ margin: 0 }}>
+              A <em>measured</em> skeleton cannot be. Measuring means reading real geometry off real markup, and inside a <code>loading.tsx</code> the page it would measure has not rendered — the fallback renders instead of it. Those skeletons mount after hydration, which is the right trade for a client-side loading state and the wrong one for a route fallback.
+            </p>
+            <CodeBlock filename="Skelly.jsx" language="react" code={docCodeSnippets.ssrMeasuredCode} />
+
+            <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "16px 0 8px", color: "#1C1C1A" }}>Reserved space, no layout jump</h2>
+            <p style={{ margin: 0 }}>
+              Skeleton items are absolutely positioned, so a standalone skeleton would otherwise give its container no height and paint over whatever follows it. When there is no real content underneath, the overlay joins normal flow and carries the spec&rsquo;s own extent, reserving exactly the space the skeleton occupies.
+            </p>
           </div>
         )}
 
