@@ -51,7 +51,7 @@ export default function Home() {
             fontWeight: 700,
             textWrap: "balance"
           }}>
-            Skeletons that draw themselves.
+            Skeletons that learn your UI.
           </h1>
           <p style={{
             margin: 0,
@@ -61,7 +61,7 @@ export default function Home() {
             maxWidth: "46ch",
             textWrap: "pretty"
           }}>
-            skelly reads your rendered UI and generates pixel-accurate loading states for it — components, pages, images, text, tables. Shimmer, pulse, or optimistic. On the server too.
+            skelly measures your rendered UI, then remembers it — so the next load paints a skeleton of your actual layout, not a guess. No build step, no headless browser, nothing to regenerate when your markup changes.
           </p>
           
           <div id="install" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -436,12 +436,12 @@ export default function Home() {
 
             <div style={{ padding: "30px", border: "1px solid rgba(28,28,26,.1)", borderRadius: "14px", background: "#FAFAF8" }}>
               <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#8A8880", marginBottom: "18px" }}>
-                {"// compile-time json registry"}
+                {"// build-time snapshot tools"}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "15px", color: "#55534C", lineHeight: 1.5 }}>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
-                  <span>Requires running a CLI build command every time you change code</span>
+                  <span>Needs a headless Chromium download and a CLI pass before it works</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
@@ -449,7 +449,7 @@ export default function Home() {
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
-                  <span>Shifts/breaks on layout sizing if not continuously rebuilt</span>
+                  <span>Silently stale the moment someone edits a component and forgets to rebuild</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#B4B2AA", flex: "none" }}>✕</span>
@@ -466,24 +466,24 @@ export default function Home() {
               boxShadow: "0 8px 28px rgba(79,70,229,.08)"
             }}>
               <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "12.5px", color: "#4F46E5", marginBottom: "18px" }}>
-                {"// skelly (dynamic runtime)"}
+                {"// skelly (learns at runtime)"}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "15px", color: "#3A3833", lineHeight: 1.5 }}>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>Zero config: measures real layouts dynamically at runtime</span>
+                  <span>Measures your real DOM at runtime — no browser binary, no CLI pass</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>No compile scripts or massive JSON code-generation files</span>
+                  <span>Remembers what it measured, so the next load is a real skeleton</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>Self-healing: naturally handles responsive viewport shifts</span>
+                  <span>Self-healing: re-learns on every render, so it can never go stale</span>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <span style={{ color: "#4F46E5", flex: "none" }}>✓</span>
-                  <span>Ready-made presets to placeholder layouts instantly</span>
+                  <span>Learned per breakpoint, and exportable to seed first-time visitors</span>
                 </div>
               </div>
             </div>

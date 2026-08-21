@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.4.0 - August 21, 2026
+### Skeletons That Learn Your Layout
+- [new] Give a layout a `name` and skelly learns it. The real content is measured once it renders, stored per viewport breakpoint, and replayed the next time that layout is loading — including before the component has ever mounted, which is exactly where a measured skeleton could not help before. First load is generic, every load after is your actual layout.
+- [new] A learned layout is overwritten by the next successful render, so it cannot go stale the way a build-time snapshot does. Edit a component and the correction happens the first time anyone looks at it — no CLI to re-run, no artifact to regenerate, no headless browser to install.
+- [new] `<SkellySpecs specs={...}>` supplies committed layouts to everything beneath it and inlines the same payload for the client. Layouts render on the server, so a first-time visitor gets real skeletons in the HTML rather than a generic placeholder — and each browser then replaces them with its own measurements.
+- [new] `learnLayout()`, `recallSpec()`, `exportLearnedSpecs()`, `importLearnedSpecs()`, `clearLearnedSpecs()`, `breakpointFor()` and `learnedKey()` are exported for vanilla use and for moving learned layouts between browsers.
+- [new] Learned layouts are bucketed by viewport (`0/480/768/1024/1280/1536`, overridable via `breakpoints`), so a desktop measurement never replays on a phone. Storage is pluggable via `storage`, or `storage: null` to stay in memory. Nothing leaves the browser.
+- [fixed] Learning is measured synchronously in the effect rather than inside `requestAnimationFrame`. A page opened in a background tab is never sent frames, so the rAF callback never ran and nothing was ever learned there. A second reading is taken once `document.fonts.ready` resolves, since webfonts change text metrics after first layout.
+- [improved] The `name` option is threaded through the Vue adapter, and reading a learned layout goes through `useSyncExternalStore` so it cannot desynchronise hydration.
+- [improved] Site and docs rewritten around the learning model, with a new "Learned skeletons" guide, expanded API reference, canonical URL, `SoftwareApplication` structured data and refreshed metadata.
+
 ## v0.3.0 - August 20, 2026
 ### Skeletons In The First Byte
 - [new] Skeletons whose layout needs no DOM measurement are now rendered on the server as real elements, so they arrive in the initial HTML and paint before any JavaScript runs. This covers an explicit `spec`, any `preset`, and a container with no children. Previously `<Skelly>` server-rendered to an empty `<div>` and the skeleton only appeared after hydration — which meant a Next.js `loading.tsx` showed nothing at all during the window a route fallback exists to cover.

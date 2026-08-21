@@ -1,7 +1,7 @@
 {
   "name": "use-skelly",
-  "version": "0.3.0",
-  "description": "Skeletons that draw themselves. Layout-driven skeleton state library.",
+  "version": "0.4.0",
+  "description": "Skeleton screens that learn your UI. Measured from your real DOM at runtime, then remembered \u2014 no build step, nothing to regenerate.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sidhanshumonga/use-skelly.git",
@@ -63,7 +63,10 @@
     "nextjs",
     "vue",
     "svelte",
-    "layout"
+    "layout",
+    "self-learning",
+    "no-build-step",
+    "suspense-fallback"
   ],
   "author": "Skelly Team",
   "license": "MIT",
