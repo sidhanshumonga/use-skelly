@@ -3,6 +3,9 @@
 :root {
   --skelly-base: #E4E2DC;
   --skelly-highlight: #F5F4F0;
+  --skelly-surface: rgba(28, 28, 26, 0.03);
+  --skelly-surface-border: rgba(28, 28, 26, 0.08);
+  --skelly-optimistic: rgba(79, 70, 229, 0.16);
   --skelly-radius: 5px;
   --skelly-speed: 1.4s;
 }
@@ -26,19 +29,14 @@
   }
 }
 
-@keyframes skSkellyFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
 /* Containers */
 .skelly-container {
-  position: relative !important;
   pointer-events: none;
+  /* Text nodes sitting directly on the container have no element to hide, so
+     drop their paint instead — element children are hidden by the mount itself. */
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
 }
 
 .skelly-overlay {
@@ -82,7 +80,13 @@
 }
 
 .skelly-optimistic {
-  background: rgba(79, 70, 229, 0.16) !important; /* Brand theme fallback */
+  background: var(--skelly-optimistic) !important;
+}
+
+/* Scaffolding behind the skeleton — flat and unanimated so the items on top read. */
+.skelly-surface {
+  background: var(--skelly-surface) !important;
+  border: 1px solid var(--skelly-surface-border) !important;
 }
 
 /* Accessibility */

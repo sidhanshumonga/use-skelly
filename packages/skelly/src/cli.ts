@@ -110,7 +110,7 @@ function handleCreate() {
 
 export default function GlobalLoading() {
   // Pre-baked generic skeleton loaded instantly for every route transition!
-  return <Skelly preset="generic" visual="shimmer" style={{ padding: "40px", maxWidth: "600px" }} />;
+  return <Skelly loading preset="generic" visual="shimmer" style={{ padding: "40px", maxWidth: "600px" }} />;
 }
 `;
       fs.writeFileSync(loadingPath, loadingCode, "utf-8");
@@ -184,7 +184,7 @@ function handleInit() {
           const loadingCode = `import { Skelly } from "use-skelly/react";
 
 export default function GlobalLoading() {
-  return <Skelly preset="generic" visual="shimmer" style={{ padding: "40px", maxWidth: "600px" }} />;
+  return <Skelly loading preset="generic" visual="shimmer" style={{ padding: "40px", maxWidth: "600px" }} />;
 }
 `;
           fs.writeFileSync(loadingPath, loadingCode, "utf-8");

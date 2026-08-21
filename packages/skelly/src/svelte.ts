@@ -9,13 +9,18 @@ export interface SvelteSkellyParams extends SkellyOptions {
  */
 export function skelly(node: HTMLElement, params: SvelteSkellyParams) {
   let releaseFn: (() => void) | null = null;
+  let signature = "";
 
   function update(newParams: SvelteSkellyParams) {
+    const nextSignature = JSON.stringify(newParams || {});
+    if (nextSignature === signature) return;
+    signature = nextSignature;
+
     if (releaseFn) {
       releaseFn();
       releaseFn = null;
     }
-    if (newParams.loading) {
+    if (newParams && newParams.loading) {
       const { loading, ...options } = newParams;
       releaseFn = coreSkelly(node, options);
     }
@@ -28,6 +33,7 @@ export function skelly(node: HTMLElement, params: SvelteSkellyParams) {
     destroy() {
       if (releaseFn) {
         releaseFn();
+        releaseFn = null;
       }
     }
   };
@@ -39,22 +45,48 @@ export function skelly(node: HTMLElement, params: SvelteSkellyParams) {
  */
 export class SkellyComponent {
   $$: any;
-  constructor(options: any) {
-    const { target, props } = options;
-    const node = document.createElement("div");
-    node.className = "skelly-svelte-container";
-    
-    let releaseFn: (() => void) | null = null;
-    
-    const update = (loading: boolean) => {
-      if (releaseFn) releaseFn();
-      if (loading) {
-        releaseFn = coreSkelly(node, props);
-      }
-    };
+  private node: HTMLElement;
+  private releaseFn: (() => void) | null = null;
+  private props: any;
 
-    update(props.loading);
-    target.appendChild(node);
+  constructor(options: any) {
+    const { target, props = {} } = options;
+    this.props = { ...props };
+
+    this.node = document.createElement("div");
+    this.node.className = "skelly-svelte-container";
+
+    // Must be in the document before mounting: skelly measures real geometry, and a
+    // detached node reports a zero-sized box for every child.
+    if (target) target.appendChild(this.node);
+
+    this.apply();
+  }
+
+  private apply() {
+    if (this.releaseFn) {
+      this.releaseFn();
+      this.releaseFn = null;
+    }
+    const { loading, ...options } = this.props;
+    if (loading) {
+      this.releaseFn = coreSkelly(this.node, options);
+    }
+  }
+
+  $set(next: any) {
+    this.props = { ...this.props, ...next };
+    this.apply();
+  }
+
+  $destroy() {
+    if (this.releaseFn) {
+      this.releaseFn();
+      this.releaseFn = null;
+    }
+    if (this.node.parentNode) {
+      this.node.parentNode.removeChild(this.node);
+    }
   }
 }
 export const Skelly = SkellyComponent;

@@ -51,6 +51,39 @@ function UserProfile({ isLoading, userData }) {
 
 ---
 
+## 🎛️ Tuning the compile
+
+`skelly()` walks your markup and decides what each element is. A few options steer that:
+
+```javascript
+skelly(el, {
+  visual: "shimmer",     // "shimmer" | "pulse" | "optimistic" | "static"
+  structure: "leaves",   // "leaves" (default) | "surface"
+  media: "block",        // "block" | "dominant-color" | "blurhash"
+  cache: true            // re-measure on every mount when false
+});
+```
+
+**`structure`** decides what happens to cards, panels and sections — elements that carry a
+background or border but exist to hold other things.
+
+- `"leaves"` (default): a structural parent that contains measurable content emits nothing of
+  its own, so the skeleton reads as its contents — the way you would hand-write it.
+- `"surface"`: the parent is kept as a flat, unanimated backing plate behind its children,
+  preserving the card outline. Style it with `--skelly-surface` and `--skelly-surface-border`.
+
+Compiled layouts are cached per container, keyed on its markup and its measured box. Because a
+spec is absolute pixel geometry, call `clearSpecCache()` after anything that changes geometry
+without changing markup — a webfont landing, a theme swap, a container resize:
+
+```javascript
+import { skelly, clearSpecCache } from "use-skelly";
+
+document.fonts.ready.then(clearSpecCache);
+```
+
+---
+
 ## 🟢 Framework Adapters
 
 `use-skelly` provides native wrappers for all major web frameworks:

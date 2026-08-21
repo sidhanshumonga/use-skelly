@@ -1,26 +1,41 @@
 import * as fs from "fs";
 import * as path from "path";
+import { PRESETS, SkellySpec, PresetName } from "./index";
 
 export interface SnapshotOptions {
   out?: string;
+  /** A spec compiled in the browser via `measureLayout()`. Written verbatim when given. */
+  spec?: SkellySpec[];
+  /** Which built-in preset to fall back to. Inferred from the route when omitted. */
+  preset?: PresetName;
+}
+
+function inferPreset(route: string): PresetName {
+  const lower = route.toLowerCase();
+  if (lower.includes("dashboard")) return "dashboard";
+  if (lower.includes("article") || lower.includes("blog") || lower.includes("post")) return "article";
+  if (lower.includes("feed")) return "feed";
+  if (lower.includes("profile") || lower.includes("account")) return "profile";
+  return "generic";
 }
 
 /**
  * Build-time Snapshot generator: snapshot('/dashboard', { out: '.skelly/specs.json' })
  * Writes compiled route layouts to local spec files for server inlining.
+ *
+ * Without a `spec`, this writes the matching built-in preset — it does not run a browser,
+ * so it cannot measure your real markup. Pass `spec` from `measureLayout()` for that.
  */
 export async function snapshot(route: string, options: SnapshotOptions = {}) {
   const outFile = options.out || ".skelly/specs.json";
   const targetPath = path.resolve(process.cwd(), outFile);
 
-  // Ensure directory exists
   const dir = path.dirname(targetPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  // Load existing specs map
-  let specs: Record<string, any> = {};
+  let specs: Record<string, SkellySpec[]> = {};
   if (fs.existsSync(targetPath)) {
     try {
       specs = JSON.parse(fs.readFileSync(targetPath, "utf-8"));
@@ -29,29 +44,13 @@ export async function snapshot(route: string, options: SnapshotOptions = {}) {
     }
   }
 
-  // Realistic fallback loading specs
-  let mockSpec = [
-    { x: 0, y: 10, w: 200, h: 20, type: "block" },
-    { x: 0, y: 40, w: 120, h: 14, type: "block" },
-    { x: 0, y: 75, w: "95%", h: 10, type: "text" },
-    { x: 0, y: 95, w: "98%", h: 10, type: "text" },
-    { x: 0, y: 115, w: "90%", h: 10, type: "text" },
-    { x: 0, y: 135, w: "60%", h: 10, type: "text" }
-  ];
+  const preset = options.preset || inferPreset(route);
+  const routeSpec = options.spec || PRESETS[preset] || PRESETS.generic;
 
-  if (route.includes("dashboard")) {
-    mockSpec = [
-      { x: 0, y: 0, w: 220, h: 600, type: "block" },
-      { x: 240, y: 0, w: "calc(100% - 240px)", h: 60, type: "block" },
-      { x: 240, y: 80, w: 200, h: 120, type: "block" },
-      { x: 460, y: 80, w: 200, h: 120, type: "block" },
-      { x: 680, y: 80, w: 200, h: 120, type: "block" },
-      { x: 240, y: 220, w: "calc(100% - 240px)", h: 300, type: "block" }
-    ];
-  }
-
-  specs[route] = mockSpec;
+  specs[route] = routeSpec;
 
   fs.writeFileSync(targetPath, JSON.stringify(specs, null, 2), "utf-8");
-  console.log(`[skelly/build] Generated layout snapshot for route "${route}" saved in "${outFile}"`);
+  console.log(
+    `[skelly/build] Generated layout snapshot for route "${route}" (${options.spec ? "measured" : `preset: ${preset}`}) saved in "${outFile}"`
+  );
 }
