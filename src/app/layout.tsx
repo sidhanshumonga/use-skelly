@@ -68,6 +68,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${instrumentSans.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="use-skelly for LLMs" />
+      </head>
       <body style={{ fontFamily: "var(--font-instrument-sans), system-ui, sans-serif" }}>
         <script
           type="application/ld+json"
