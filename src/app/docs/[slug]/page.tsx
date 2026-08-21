@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { chapters, docCodeSnippets } from "@/data/docs";
 import PresetDemo from "@/components/PresetDemo";
+import AgentPromptCTA from "@/components/AgentPromptCTA";
 import type { Metadata } from "next";
 
 const CodeBlock = ({ filename, language, code }: { filename: string; language: string; code: string }) => (
@@ -129,6 +130,14 @@ export default async function DocsChapterPage({ params }: PageProps) {
       <div style={{ fontSize: "15.5px", color: "#3A3833", lineHeight: 1.65 }}>
         {slug === "installation" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
+            <div style={{ marginBottom: "6px" }}>
+              <h2 style={{ fontSize: "20px", fontWeight: 600, margin: "0 0 8px", color: "#1C1C1A" }}>Let an agent do it</h2>
+              <p style={{ margin: "0 0 16px", fontSize: "15px", color: "#55534C" }}>
+                Paste this into Claude Code, Cursor or whatever you drive. It installs skelly, replaces the hand-written skeletons already in your codebase, and deletes what it replaced.
+              </p>
+              <AgentPromptCTA compact />
+            </div>
+
             <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(28,28,26,.12)" }}>
               <div style={{
                 display: "flex",

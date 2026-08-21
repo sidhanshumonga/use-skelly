@@ -2,6 +2,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import BenchmarkRunner from "@/components/BenchmarkRunner";
 import CopyInstallButton from "@/components/CopyInstallButton";
+import AgentPromptCTA from "@/components/AgentPromptCTA";
 import MorphingDemoCard from "@/components/MorphingDemoCard";
 import FrameworkCodeTabs from "@/components/FrameworkCodeTabs";
 
@@ -64,7 +65,7 @@ export default function Home() {
             skelly measures your rendered UI, then remembers it — so the next load paints a skeleton of your actual layout, not a guess. No build step, no headless browser, nothing to regenerate when your markup changes.
           </p>
           
-          <div id="install" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div id="install" style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
             <CopyInstallButton command="npm i use-skelly" />
             <Link href="/docs" style={{
               fontSize: "14.5px",
@@ -73,6 +74,14 @@ export default function Home() {
             }}>
               Read the docs →
             </Link>
+            <a href="#agent" style={{
+              fontSize: "14.5px",
+              fontWeight: 600,
+              padding: "13px 4px",
+              color: "#4F46E5"
+            }}>
+              Prompt your agent →
+            </a>
           </div>
 
           <div style={{
@@ -382,6 +391,19 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ============ AGENT PROMPT ============ */}
+      <section id="agent" style={{
+        background: "#fff",
+        borderTop: "1px solid rgba(28,28,26,.07)",
+        borderBottom: "1px solid rgba(28,28,26,.07)",
+        padding: "88px 40px",
+        width: "100%"
+      }}>
+        <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+          <AgentPromptCTA />
         </div>
       </section>
 
