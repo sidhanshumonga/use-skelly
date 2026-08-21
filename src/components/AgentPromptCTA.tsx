@@ -140,6 +140,19 @@ export default function AgentPromptCTA({ compact = false }: AgentPromptCTAProps)
           {agentPrompt}
         </pre>
       </div>
+
+      {!compact && (
+        <p style={{
+          margin: "16px 0 0",
+          fontSize: "14px",
+          color: "#8A8880",
+          fontFamily: "var(--font-jetbrains-mono), monospace"
+        }}>
+          Agent already browsing? Point it at{" "}
+          <a href="/llms.txt" style={{ color: "#4F46E5" }}>useskelly.dev/llms.txt</a>
+          {" "}— the whole API in one fetch.
+        </p>
+      )}
     </div>
   );
 }
