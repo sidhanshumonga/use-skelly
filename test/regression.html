@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>use-skelly — regression suite</title>
+  <link rel="stylesheet" href="/packages/skelly/dist/style.css">
+  <style>
+    body { font-family: ui-monospace, monospace; margin: 0; padding: 24px; background: #fff; color: #1c1c1a; }
+    h1 { font-size: 16px; margin: 0 0 4px; }
+    .sub { font-size: 12px; color: #777; margin-bottom: 18px; }
+    #summary { font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; display: inline-block; }
+    .ok { background: rgba(31,138,91,.1); color: #1F8A5B; }
+    .bad { background: rgba(176,72,58,.1); color: #B0483A; }
+    li { font-size: 12.5px; line-height: 1.8; list-style: none; }
+    li.pass::before { content: "PASS  "; color: #1F8A5B; font-weight: 700; }
+    li.fail::before { content: "FAIL  "; color: #B0483A; font-weight: 700; }
+    .detail { color: #888; }
+    #stage { position: absolute; left: -9999px; top: 0; }
+    .card { background: #F6F3EC; border: 1px solid #d9d5cc; border-radius: 16px; padding: 24px; width: 640px; }
+    .card h2 { font-size: 24px; line-height: 28px; margin: 0 0 12px; }
+    .eyebrow { font-size: 11px; letter-spacing: 1px; color: #888; }
+    .btn { display: inline-block; background: #1c1c1a; color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 14px; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <h1>use-skelly regression suite</h1>
+  <div class="sub">Runs against packages/skelly/dist. Rebuild the package first: <code>cd packages/skelly &amp;&amp; npx tsc</code></div>
+  <div id="summary">running…</div>
+  <ul id="results"></ul>
+
+  <div id="stage"></div>
+
+<script>
+const __m = {};
+function __req(id) { return __m[id.replace("./", "").replace(".js", "")]; }
+function __define(name, src) {
+  const exports = {}, module = { exports };
+  new Function("exports", "module", "require", src)(exports, module, __req);
+  __m[name] = module.exports;
+}
+
+const results = [];
+function check(name, actual, expected, note) {
+  const pass = JSON.stringify(actual) === JSON.stringify(expected);
+  results.push({ name, pass, actual, expected, note });
+}
+
+function card() {
+  const el = document.createElement("div");
+  el.innerHTML =
+    '<div class="card">' +
+      '<div class="eyebrow">AI PLANNER INSIGHT</div>' +
+      '<h2>Checking where your planning stands right now today</h2>' +
+      '<div class="btn">Primary</div><div class="btn">Secondary</div>' +
+    '</div>';
+  return el;
+}
+
+(async () => {
+  __define("learn", await (await fetch("/packages/skelly/dist/learn.js")).text());
+  __define("index", await (await fetch("/packages/skelly/dist/index.js")).text());
+  const K = __m["index"];
+
+  const stage = document.getElementById("stage");
+  stage.style.left = "0";
+  stage.style.position = "static";
+
+  // --- baseline -----------------------------------------------------------
+  const host = card();
+  stage.appendChild(host);
+  const baseline = K.measureLayout(host).length;
+  check("measures a card with nothing hidden", baseline > 0, true, `${baseline} specs`);
+
+  // --- the reported bug ---------------------------------------------------
+  // visibility is inherited, so once skelly hides the subtree every descendant
+  // reports "hidden". Any measurement taken then used to skip the whole tree.
+  const release = K.skelly(host, { visual: "shimmer" });
+  const h2 = host.querySelector("h2");
+  const h2Box = h2.getBoundingClientRect();
+
+  check("mount hides the real content", getComputedStyle(h2).visibility, "hidden");
+  check("hidden content still has a layout box", h2Box.width > 0 && h2Box.height > 0, true,
+    `${Math.round(h2Box.width)}x${Math.round(h2Box.height)}`);
+  check("marks itself while hiding", host.getAttribute("data-skelly-hiding"), "true");
+  check("re-measuring while mounted does not skip the tree",
+    K.measureLayout(host).length, baseline);
+  check("mounted skeleton has one item per measured spec",
+    host.querySelectorAll(".skelly-item").length, baseline);
+
+  release();
+  check("release clears the hiding marker", host.getAttribute("data-skelly-hiding"), null);
+  check("release restores content visibility", getComputedStyle(h2).visibility, "visible");
+
+  // --- mount already loading ----------------------------------------------
+  // The case a first-mount demo never exercises: content present, skeleton applied
+  // straight away, then measured again.
+  const preloaded = card();
+  stage.appendChild(preloaded);
+  const expected = K.measureLayout(preloaded).length;
+  const release2 = K.skelly(preloaded, { visual: "shimmer" });
+  check("mounted-already-loading paints every child",
+    preloaded.querySelectorAll(".skelly-item").length, expected, `${expected} expected`);
+  check("and re-measures correctly in that state",
+    K.measureLayout(preloaded).length, expected);
+  release2();
+
+  // --- nested mounts ------------------------------------------------------
+  const outer = document.createElement("div");
+  outer.appendChild(card());
+  stage.appendChild(outer);
+  const innerExpected = K.measureLayout(outer.querySelector(".card")).length;
+  const release3 = K.skelly(outer, { visual: "shimmer" });
+  check("a nested container under a hidden ancestor still measures",
+    K.measureLayout(outer.querySelector(".card")).length, innerExpected);
+  release3();
+
+  // --- the guard still does its original job ------------------------------
+  const authored = document.createElement("div");
+  authored.innerHTML =
+    '<div style="width:200px">' +
+      '<span style="visibility:hidden">hidden by the author</span>' +
+      '<span>visible</span>' +
+    '</div>';
+  stage.appendChild(authored);
+  check("an author-hidden element outside a mount is still skipped",
+    K.measureLayout(authored).length, 1);
+
+  // --- learning loop ------------------------------------------------------
+  K.clearLearnedSpecs();
+  const learnHost = card();
+  stage.appendChild(learnHost);
+  const learned = K.learnLayout(learnHost, { name: "regression-card" });
+  check("learns a named layout", Array.isArray(learned) && learned.length > 0, true);
+  check("recalls what it learned",
+    JSON.stringify(K.recallSpec("regression-card")), JSON.stringify(learned));
+
+  const emptyTarget = document.createElement("div");
+  emptyTarget.style.width = "640px";
+  stage.appendChild(emptyTarget);
+  const release4 = K.skelly(emptyTarget, { name: "regression-card" });
+  check("replays a learned layout onto an empty container",
+    emptyTarget.querySelectorAll(".skelly-item").length, learned.length);
+  check("and reserves height for it",
+    emptyTarget.getBoundingClientRect().height > 0, true);
+  release4();
+  K.clearLearnedSpecs();
+
+  stage.innerHTML = "";
+
+  // --- report -------------------------------------------------------------
+  const failed = results.filter(r => !r.pass);
+  const ul = document.getElementById("results");
+  ul.innerHTML = results.map(r =>
+    `<li class="${r.pass ? "pass" : "fail"}">${r.name}` +
+    (r.pass
+      ? (r.note ? ` <span class="detail">(${r.note})</span>` : "")
+      : ` <span class="detail">expected ${JSON.stringify(r.expected)}, got ${JSON.stringify(r.actual)}</span>`) +
+    `</li>`
+  ).join("");
+
+  const summary = document.getElementById("summary");
+  summary.className = failed.length ? "bad" : "ok";
+  summary.textContent = failed.length
+    ? `${failed.length} of ${results.length} FAILED`
+    : `all ${results.length} passed`;
+
+  // Machine readable, for a headless runner.
+  window.__skellyRegression = { total: results.length, failed: failed.length, results };
+  document.title = failed.length ? `FAIL (${failed.length})` : `PASS (${results.length})`;
+})();
+</script>
+</body>
+</html>

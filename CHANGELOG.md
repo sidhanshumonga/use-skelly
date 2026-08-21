@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.4.1 - August 21, 2026
+### Measuring Through Skelly's Own Hidden State
+- [fixed] `measureLayout()` skipped entire subtrees once a skeleton was mounted. Skelly hides real content with `visibility: hidden`, which every descendant inherits, so the guard meant to ignore genuinely hidden elements could not tell them apart from the ones skelly had just hidden — and returned nothing. A container is now marked while skelly is hiding it, and inside that subtree an element is measured on its geometry rather than its inherited visibility. Outside a mount the guard is unchanged: an author's hidden element is still skipped.
+- [fixed] A nested `<Skelly>` whose ancestor was already showing a skeleton measured nothing at all, for the same reason. Nested mounts now measure correctly.
+- [new] Browser regression suite at `test/regression.html`, served by `npm run test:browser`. Sixteen assertions covering the visibility guard, mounting with `loading` already true, nested mounts, teardown, and the learning loop. Layout measurement cannot be tested in jsdom — every element reports a zero-sized box — so the suite runs against a real browser and reports a machine-readable result on `window.__skellyRegression`.
+
 ## v0.4.0 - August 21, 2026
 ### Skeletons That Learn Your Layout
 - [new] Give a layout a `name` and skelly learns it. The real content is measured once it renders, stored per viewport breakpoint, and replayed the next time that layout is loading — including before the component has ever mounted, which is exactly where a measured skeleton could not help before. First load is generic, every load after is your actual layout.

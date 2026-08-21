@@ -1,12 +1,13 @@
 {
   "name": "use-skelly",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "npx tsc -p packages/skelly/tsconfig.json && mkdir -p packages/skelly/dist && cp packages/skelly/src/style.css packages/skelly/dist/style.css && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:browser": "node test/serve.mjs"
   },
   "dependencies": {
     "next": "16.2.10",
