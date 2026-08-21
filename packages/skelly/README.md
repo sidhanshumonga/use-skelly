@@ -148,6 +148,15 @@ skelly(el, {
 });
 ```
 
+Decoration is skipped rather than painted: anything blurred, and `aria-hidden` elements
+lifted out of flow with no text of their own — a background orb, a glow, a hairline ring.
+An `aria-hidden` icon sitting in flow beside a label is still content. For anything the
+heuristics miss, mark it `data-skelly-ignore`:
+
+```html
+<div class="decorative-gradient" data-skelly-ignore></div>
+```
+
 **`structure`** decides what happens to cards, panels and sections — elements that carry a
 background or border but exist to hold other things.
 

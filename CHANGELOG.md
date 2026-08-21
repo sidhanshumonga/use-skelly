@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.2 - August 21, 2026
+### Decoration Is Not Content
+- [fixed] Decorative elements were painted as skeleton shapes. A background orb, a glow or a hairline ring became a large shimmering circle sitting on top of the layout it was meant to sit behind — the "random circles" a skeleton should never have. Anything blurred is now skipped, as are `aria-hidden` and `role="presentation"` elements lifted out of flow with no text of their own. An `aria-hidden` icon sitting in flow beside a label is still measured as content.
+- [new] `data-skelly-ignore` opts any element out of measurement, for whatever the heuristics miss.
+- [fixed] Skeleton items no longer paint outside the element they cover. Decorative layers are frequently positioned past their container's edge, and those items spilled onto the surrounding page. Elements with no overlap at all are dropped, and the overlay clips what remains.
+- [fixed] A container measured before layout settles has no area of its own, which made the new bounds test discard its entire subtree. The test only applies once the container has been laid out.
+- [changed] Learned layouts are stored under `skelly:learned:v2`. Layouts recorded under the old measurement rules still contain the decorative shapes, so they are dropped rather than replayed after upgrading.
+- [improved] The regression suite covers decoration, opt-out, bounds and overlay clipping, and reports a thrown assertion instead of hanging on "running…". Twenty-three assertions.
+
 ## v0.4.1 - August 21, 2026
 ### Measuring Through Skelly's Own Hidden State
 - [fixed] `measureLayout()` skipped entire subtrees once a skeleton was mounted. Skelly hides real content with `visibility: hidden`, which every descendant inherits, so the guard meant to ignore genuinely hidden elements could not tell them apart from the ones skelly had just hidden — and returned nothing. A container is now marked while skelly is hiding it, and inside that subtree an element is measured on its geometry rather than its inherited visibility. Outside a mount the guard is unchanged: an author's hidden element is still skipped.

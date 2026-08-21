@@ -246,6 +246,30 @@ export function compileItemProps(
 }
 
 /**
+ * Whether an element is decoration rather than content — a background orb, a glow, a
+ * hairline ring. A skeleton is a stand-in for what the reader is waiting to read, and
+ * painting the decorative layer as a shimmering shape is worse than omitting it.
+ *
+ * Deliberately narrow. An `aria-hidden` icon sitting next to a label is still content, so
+ * that alone is not enough: it also has to be lifted out of flow with no text of its own,
+ * which is what a background layer looks like and an inline icon does not.
+ */
+function isDecorative(el: HTMLElement, style: CSSStyleDeclaration): boolean {
+  if (el.hasAttribute("data-skelly-ignore")) return true;
+
+  // Nothing legible is behind a blur.
+  if (style.filter && style.filter.indexOf("blur(") !== -1) return true;
+
+  const role = el.getAttribute("role");
+  const ariaHidden = el.getAttribute("aria-hidden") === "true";
+  const presentational = role === "presentation" || role === "none";
+  if (!ariaHidden && !presentational) return false;
+
+  const lifted = style.position === "absolute" || style.position === "fixed";
+  return lifted && !el.textContent?.trim();
+}
+
+/**
  * The content box in container-relative coordinates. `getBoundingClientRect()` always
  * reports the border box, whatever `box-sizing` says.
  */
@@ -281,6 +305,7 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
   // "hidden" — including the elements we are trying to measure. Anything under a
   // container skelly is currently hiding gets measured on its geometry alone.
   const startsHidden = !!container.closest("[data-skelly-hiding]");
+  const containerHasArea = containerRect.width > 0 && containerRect.height > 0;
 
   function walkChildren(el: HTMLElement, path: string, hiddenByHost: boolean) {
     Array.from(el.children).forEach((c, i) => {
@@ -313,8 +338,26 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
       return;
     }
 
+    if (isDecorative(el, style)) {
+      return;
+    }
+
     const rect = el.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) {
+      return;
+    }
+
+    // A decorative layer often sits outside the box it decorates. Whatever the reason,
+    // an element with no overlap with the container is not part of what we are covering.
+    // Only meaningful once the container has an area of its own — a container measured
+    // before layout settles has none, and "outside" would then discard the whole tree.
+    if (
+      containerHasArea &&
+      (rect.right <= containerRect.left ||
+      rect.left >= containerRect.right ||
+      rect.bottom <= containerRect.top ||
+      rect.top >= containerRect.bottom)
+    ) {
       return;
     }
 

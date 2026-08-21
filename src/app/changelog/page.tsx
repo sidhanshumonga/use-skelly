@@ -62,6 +62,9 @@ function getReleases(): Release[] {
             } else if (type === "improved" || type === "improve") {
               color = "#C27803";
               bg = "rgba(194,120,3,.08)";
+            } else if (type === "changed" || type === "change") {
+              color = "#4F46E5";
+              bg = "rgba(79,70,229,.07)";
             } else if (type === "rename") {
               color = "#7C3AED";
               bg = "rgba(124,58,237,.08)";
