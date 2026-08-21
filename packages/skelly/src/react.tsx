@@ -141,6 +141,7 @@ export function Skelly({
       style={style}
       className={containerClassName}
       data-skelly-container
+      data-skelly-hiding={isStatic ? true : undefined}
       aria-busy={isStatic ? true : undefined}
     >
       {children}

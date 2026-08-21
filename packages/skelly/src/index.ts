@@ -277,15 +277,20 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
   const containerRect = container.getBoundingClientRect();
   const specs: SkellySpec[] = [];
 
-  function walkChildren(el: HTMLElement, path: string) {
+  // `visibility` inherits, so once skelly hides a subtree every descendant reports
+  // "hidden" — including the elements we are trying to measure. Anything under a
+  // container skelly is currently hiding gets measured on its geometry alone.
+  const startsHidden = !!container.closest("[data-skelly-hiding]");
+
+  function walkChildren(el: HTMLElement, path: string, hiddenByHost: boolean) {
     Array.from(el.children).forEach((c, i) => {
-      walk(c as HTMLElement, `${path}/${i}:${c.tagName.toLowerCase()}`);
+      walk(c as HTMLElement, `${path}/${i}:${c.tagName.toLowerCase()}`, hiddenByHost);
     });
   }
 
-  function walk(el: HTMLElement, path: string) {
+  function walk(el: HTMLElement, path: string, hiddenByHost: boolean) {
     if (el === container) {
-      walkChildren(el, path);
+      walkChildren(el, path, hiddenByHost);
       return;
     }
 
@@ -294,8 +299,17 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
       return;
     }
 
+    // A nested mount hides its own subtree, so the flag can turn on partway down.
+    const insideHidingHost = hiddenByHost || el.hasAttribute("data-skelly-hiding");
+
     const style = window.getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") {
+    if (style.display === "none" || style.opacity === "0") {
+      return;
+    }
+    // Outside a mount this guard means what it always meant: the author hid this. Inside
+    // one it cannot tell an author's hidden element from the ones skelly just hid, and
+    // skipping the whole subtree is far worse than drawing one element that was hidden.
+    if (style.visibility === "hidden" && !insideHidingHost) {
       return;
     }
 
@@ -370,7 +384,7 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
     const hasBorder = style.borderStyle !== "none" && parseFloat(style.borderWidth) > 0;
 
     const specCountBefore = specs.length;
-    walkChildren(el, path);
+    walkChildren(el, path, insideHidingHost);
     const subtreeProducedSpecs = specs.length > specCountBefore;
 
     if (!hasBackground && !hasBorder) {
@@ -389,7 +403,7 @@ export function measureLayout(container: HTMLElement, options: SkellyOptions = {
     }
   }
 
-  walk(container, "");
+  walk(container, "", startsHidden);
   return specs;
 }
 
@@ -455,6 +469,9 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
 
   const previousAriaBusy = element.getAttribute("aria-busy");
   element.setAttribute("aria-busy", "true");
+  // Tells any measurement taken while this mount is live that the hidden state below
+  // is ours, not the author's.
+  element.setAttribute("data-skelly-hiding", "true");
 
   // With no real content underneath, the absolutely positioned items give the container
   // no height at all and spill over whatever follows. Let the overlay sit in normal flow
@@ -488,6 +505,7 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
       element.removeChild(overlay);
     }
     element.classList.remove("skelly-container");
+    element.removeAttribute("data-skelly-hiding");
 
     if (needsPositioning) {
       element.style.position = previousInlinePosition;
