@@ -97,12 +97,24 @@ function Profile({ userId }) {
     </Skelly>
   )
 }`,
-  ssrCode: `import { withSkelly } from 'use-skelly/next'
+  ssrCode: `// app/dashboard/loading.tsx
+import { Skelly } from 'use-skelly/react'
 
-export default withSkelly({
-  // skeleton specs generated at build,
-  // inlined into server HTML
-})`,
+// A preset needs no DOM measurement, so the skeleton
+// is rendered into the server HTML itself — it paints
+// on first paint, before any JavaScript runs.
+export default function Loading() {
+  return <Skelly preset="dashboard" visual="shimmer" />
+}`,
+  ssrMeasuredCode: `// Measured skeletons are client-side: the markup has to
+// exist before it can be measured.
+<Skelly loading={isLoading}>
+  <ProfileCard user={data} />
+</Skelly>
+
+// Server-rendered: the layout is known up front.
+<Skelly preset="profile" />
+<Skelly spec={compiledSpec} />`,
   pagesCode: `// build step
 import { snapshot } from 'use-skelly/build'
 

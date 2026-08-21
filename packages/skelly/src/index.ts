@@ -173,6 +173,70 @@ function buildGenericSpec(rows?: number): SkellySpec[] {
 }
 
 /**
+ * The lowest point a spec reaches, in pixels, or null when no item carries numeric
+ * geometry. Used to reserve height for a skeleton that has no real content under it.
+ */
+export function specExtent(specs: SkellySpec[]): number | null {
+  let extent: number | null = null;
+  for (const item of specs) {
+    if (typeof item.y !== "number" || typeof item.h !== "number") continue;
+    const bottom = item.y + item.h;
+    if (extent === null || bottom > extent) extent = bottom;
+  }
+  return extent;
+}
+
+/**
+ * The spec for options that need no DOM measurement, or null when the layout can only
+ * come from real markup. `hasContent` is false when the container holds nothing to
+ * measure — measuring it could only ever produce the generic fallback, so return that
+ * directly. Knowing a spec without the DOM is what lets it be rendered on the server.
+ */
+export function resolveStaticSpec(options: SkellyOptions = {}, hasContent: boolean = true): SkellySpec[] | null {
+  if (options.spec) return options.spec;
+  if (options.preset === "generic") return buildGenericSpec(options.rows);
+  if (options.preset && PRESETS[options.preset]) return PRESETS[options.preset];
+  if (!hasContent) return buildGenericSpec(options.rows);
+  return null;
+}
+
+/**
+ * The class name and styles for a single spec item. Shared by the imperative mount and
+ * by server rendering, so both paths paint identically.
+ */
+export function compileItemProps(
+  item: SkellySpec,
+  options: SkellyOptions = {}
+): { className: string; style: Record<string, string> } {
+  const visual = options.visual || "shimmer";
+  const media = options.media || "block";
+
+  const style: Record<string, string> = {
+    left: typeof item.x === "number" ? `${item.x}px` : item.x,
+    top: typeof item.y === "number" ? `${item.y}px` : item.y,
+    width: typeof item.w === "number" ? `${item.w}px` : item.w,
+    height: typeof item.h === "number" ? `${item.h}px` : item.h
+  };
+
+  if (item.r) style.borderRadius = item.r;
+  if (options.radius) style.borderRadius = options.radius;
+
+  if (item.type === "image") {
+    if (media === "dominant-color" && item.color) {
+      style.background = item.color;
+    } else if (media === "blurhash") {
+      style.background = "linear-gradient(45deg, var(--skelly-base), var(--skelly-highlight))";
+    }
+  }
+
+  return {
+    // A surface is scaffolding behind the skeleton, so it never animates.
+    className: item.type === "surface" ? "skelly-item skelly-surface" : `skelly-item skelly-${visual}`,
+    style
+  };
+}
+
+/**
  * The content box in container-relative coordinates. `getBoundingClientRect()` always
  * reports the border box, whatever `box-sizing` says.
  */
@@ -331,18 +395,14 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
   const previousRelease = activeReleases.get(element);
   if (previousRelease) previousRelease();
 
-  const visual = options.visual || "shimmer";
-  const media = options.media || "block";
   const useCache = options.cache !== false;
+  const hasContent = element.children.length > 0;
 
-  let specs: SkellySpec[] = [];
+  let specs: SkellySpec[];
+  const staticSpec = resolveStaticSpec(options, hasContent);
 
-  if (options.spec) {
-    specs = options.spec;
-  } else if (options.preset === "generic") {
-    specs = buildGenericSpec(options.rows);
-  } else if (options.preset && PRESETS[options.preset]) {
-    specs = PRESETS[options.preset];
+  if (staticSpec) {
+    specs = staticSpec;
   } else {
     const cacheKey = `${getElementKey(element)}|${options.structure || "leaves"}`;
     const cached = useCache ? specCache.get(cacheKey) : undefined;
@@ -384,27 +444,22 @@ export function skelly(element: HTMLElement | null, options: SkellyOptions = {})
   const previousAriaBusy = element.getAttribute("aria-busy");
   element.setAttribute("aria-busy", "true");
 
+  // With no real content underneath, the absolutely positioned items give the container
+  // no height at all and spill over whatever follows. Let the overlay sit in normal flow
+  // and carry the spec's own extent instead.
+  const extent = specExtent(specs);
+  if (!hasContent && extent !== null) {
+    overlay.classList.add("skelly-overlay-flow");
+    overlay.style.setProperty("--skelly-overlay-height", `${extent}px`);
+  }
+
   specs.forEach(item => {
     const el = document.createElement("div");
-    // A surface is scaffolding behind the skeleton, so it never animates.
-    el.className = item.type === "surface" ? "skelly-item skelly-surface" : `skelly-item skelly-${visual}`;
+    const { className, style: itemStyle } = compileItemProps(item, options);
+
+    el.className = className;
     el.setAttribute("aria-hidden", "true");
-
-    el.style.left = typeof item.x === "number" ? `${item.x}px` : item.x;
-    el.style.top = typeof item.y === "number" ? `${item.y}px` : item.y;
-    el.style.width = typeof item.w === "number" ? `${item.w}px` : item.w;
-    el.style.height = typeof item.h === "number" ? `${item.h}px` : item.h;
-
-    if (item.r) el.style.borderRadius = item.r;
-    if (options.radius) el.style.borderRadius = options.radius;
-
-    if (item.type === "image") {
-      if (media === "dominant-color" && item.color) {
-        el.style.background = item.color;
-      } else if (media === "blurhash") {
-        el.style.background = "linear-gradient(45deg, var(--skelly-base), var(--skelly-highlight))";
-      }
-    }
+    Object.assign(el.style, itemStyle);
 
     overlay.appendChild(el);
   });

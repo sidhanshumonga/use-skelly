@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0 - August 20, 2026
+### Skeletons In The First Byte
+- [new] Skeletons whose layout needs no DOM measurement are now rendered on the server as real elements, so they arrive in the initial HTML and paint before any JavaScript runs. This covers an explicit `spec`, any `preset`, and a container with no children. Previously `<Skelly>` server-rendered to an empty `<div>` and the skeleton only appeared after hydration — which meant a Next.js `loading.tsx` showed nothing at all during the window a route fallback exists to cover.
+- [fixed] A standalone skeleton no longer overflows its container. Every spec item is absolutely positioned, so a preset over an empty container gave it no height and painted across whatever followed — the CLI-scaffolded `loading.tsx` reserved 80px for a 145px skeleton. With no real content underneath, the overlay now joins normal flow and carries the spec's extent, reserving exactly the space it occupies.
+- [improved] `<Skelly>` with no children resolves to the generic skeleton without a pointless measure pass, in both the React and vanilla paths.
+- [new] `resolveStaticSpec()`, `specExtent()` and `compileItemProps()` are exported, so the imperative mount and server rendering compile a spec through exactly one code path.
+- [fixed] Documentation credited `withSkelly()` with inlining specs into server HTML. It does not — it sets an environment flag and passes `webpack` through. The SSR guide now describes the mechanism that actually renders skeletons on the server, and which skeletons can and cannot use it.
+
 ## v0.2.0 - August 20, 2026
 ### Skeletons That Read Like Skeletons
 - [fixed] Parent containers no longer swallow their children. A card, panel or section with a background or border used to emit a full-size `block` *and* recurse into its children, painting both with an identical gradient at an identical phase — the whole component read as one solid rectangle. Structural parents now emit nothing of their own when their subtree contributes content.

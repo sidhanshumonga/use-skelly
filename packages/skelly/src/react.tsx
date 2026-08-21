@@ -1,7 +1,13 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { skelly, SkellyOptions } from "./index";
+import {
+  skelly,
+  compileItemProps,
+  resolveStaticSpec,
+  specExtent,
+  SkellyOptions
+} from "./index";
 
 export interface SkellyProps extends SkellyOptions {
   /** Defaults to `true` so `<Skelly />` works as a standalone Suspense/route fallback. */
@@ -48,6 +54,12 @@ export function useSkelly<T extends HTMLElement = HTMLDivElement>(
 
 /**
  * Standard Skelly wrapper component for React.
+ *
+ * A preset, an explicit spec, or an empty container all yield a layout that needs no DOM
+ * measurement — so the skeleton is rendered directly and ships in the server HTML. That
+ * is what makes `<Skelly>` usable in a Next.js `loading.tsx`, where the fallback must
+ * paint before any JavaScript has run. Anything that has to be measured stays on the
+ * effect path, because the markup only exists on the client.
  */
 export function Skelly({
   loading = true,
@@ -60,22 +72,60 @@ export function Skelly({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const optionsKey = JSON.stringify(options);
 
+  const hasContent = React.Children.count(children) > 0;
+  // routeAuto resolves against a client-only global, so it can never be server rendered.
+  const staticSpec = loading && !routeAuto ? resolveStaticSpec(options, hasContent) : null;
+  const isStatic = staticSpec !== null;
+
   useEffect(() => {
-    if (!loading || !containerRef.current) return;
+    if (!loading || isStatic || !containerRef.current) return;
 
     const release = skelly(containerRef.current, withRouteSpec(JSON.parse(optionsKey), routeAuto));
     return () => release();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, optionsKey, routeAuto]);
+  }, [loading, optionsKey, routeAuto, isStatic]);
+
+  const extent = staticSpec ? specExtent(staticSpec) : null;
+  const flow = staticSpec !== null && !hasContent && extent !== null;
+
+  const containerClassName = [isStatic ? "skelly-container" : null, className]
+    .filter(Boolean)
+    .join(" ") || undefined;
 
   return (
     <div
       ref={containerRef}
       style={style}
-      className={className}
+      className={containerClassName}
       data-skelly-container
+      aria-busy={isStatic ? true : undefined}
     >
       {children}
+      {staticSpec && (
+        <div
+          className={flow ? "skelly-overlay skelly-overlay-flow" : "skelly-overlay"}
+          role="status"
+          aria-live="polite"
+          aria-label="Loading"
+          style={
+            flow
+              ? ({ "--skelly-overlay-height": `${extent}px` } as React.CSSProperties)
+              : undefined
+          }
+        >
+          {staticSpec.map((item, i) => {
+            const { className: itemClass, style: itemStyle } = compileItemProps(item, options);
+            return (
+              <div
+                key={i}
+                className={itemClass}
+                style={itemStyle as React.CSSProperties}
+                aria-hidden="true"
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
