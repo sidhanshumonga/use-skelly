@@ -9,9 +9,14 @@ Skeleton screens that learn your UI. A zero-dependency, layout-driven skeleton s
 Instead of writing custom skeleton loading states for every single component, simply wrap your subtree and let `use-skelly` do the work.
 
 - **Zero configuration**: Derive skeletons dynamically from your markup.
-- **Zero layout shift (CLS)**: Placeholders occupy the exact dimensions of your real elements, guaranteeing layout stability.
-- **SSR & Streaming ready**: Pre-compile route layout specs at build time and render skeletons in the first byte of server HTML.
-- **Extremely lightweight**: Core is only `2.1 kB` minified + gzipped; framework adapters are `~0.4 kB` each.
+- **Minimal layout shift**: Placeholders are built from the real elements' geometry, so the swap from skeleton to content moves as little as possible.
+- **Learns your layout**: Name a region and it is measured once it renders, then replayed on later loads — no build step, nothing to regenerate.
+- **Server renderable**: A `preset`, an explicit `spec`, or committed layouts render as real HTML, so a route fallback paints before any JavaScript runs.
+- **Lightweight**: core `4.1 kB` min+gzip; React adapter `1.7 kB`, Vue `0.9 kB`, Svelte `0.6 kB`, stylesheet `0.6 kB`.
+
+> **First load is generic.** A layout has to be seen before it can be replayed, so the very
+> first visit falls back to a built-in shape unless you give it a `preset`, an explicit
+> `spec`, or seed it with `<SkellySpecs>`.
 
 For complete documentation and guides, visit [useskelly.dev](https://useskelly.dev).
 
@@ -38,7 +43,7 @@ import { Skelly } from "use-skelly/react";
 
 function UserProfile({ isLoading, userData }) {
   return (
-    <Skelly loading={isLoading} visual="shimmer">
+    <Skelly name="user-profile" loading={isLoading} visual="shimmer">
       <div className="profile-card">
         <img src={userData.avatar} className="avatar" />
         <h2>{userData.name}</h2>
@@ -74,9 +79,33 @@ needs a headless browser, a CLI pass, and the discipline to re-run it whenever m
 changes; when someone forgets, the skeleton is quietly wrong. A learned layout is overwritten
 by the next successful render.
 
-Layouts live in `localStorage` under `skelly:learned:v1`, capped at 120 entries. Pass
-`storage` for a different store, or `storage: null` to keep them in memory only. Nothing
-leaves the browser.
+### Breakpoints
+
+Layouts are stored per viewport bucket — `[0, 480, 768, 1024, 1280, 1536]` by default — so a
+layout learned on a desktop is never replayed on a phone. Each width learns itself the first
+time someone visits at that size. Override with `breakpoints`:
+
+```javascript
+skelly(el, { name: "article-card", breakpoints: [0, 640, 1024] });
+```
+
+### Storage
+
+Layouts live in `localStorage` under `skelly:learned:v2`, capped at 120 entries with the
+oldest evicted first. Pass `storage` for a different store, or `storage: null` to keep them
+in memory only. Nothing leaves the browser.
+
+### Learning API
+
+| Export | Purpose |
+| --- | --- |
+| `learnLayout(element, { name })` | Measure what is on screen now and store it |
+| `recallSpec(name, options?)` | The layout learned for this name at this viewport, or `null` |
+| `exportLearnedSpecs()` | Everything learned, as `{ "name@breakpoint": spec }` |
+| `importLearnedSpecs(specs, options?)` | Merge exported layouts back in |
+| `clearLearnedSpecs(options?)` | Drop every learned layout, in memory and storage |
+| `breakpointFor(width, breakpoints?)` | The bucket a given viewport width falls into |
+| `learnedKey(name, options?)` | The storage key for a name at the current viewport |
 
 ### Seeding the first visit
 
@@ -193,7 +222,8 @@ import { vSkelly, Skelly } from "use-skelly/vue";
 </script>
 
 <template>
-  <div v-skelly="isLoading">
+  <!-- Object form carries options; `v-skelly="isLoading"` still works -->
+  <div v-skelly="{ loading: isLoading, name: 'profile-card' }">
     <ProfileCard />
   </div>
 </template>
@@ -206,25 +236,28 @@ import { vSkelly, Skelly } from "use-skelly/vue";
   export let isLoading = true;
 </script>
 
-<div use:skelly={{ loading: isLoading, visual: 'shimmer' }}>
+<div use:skelly={{ loading: isLoading, name: 'profile-card', visual: 'shimmer' }}>
   <slot />
 </div>
 ```
 
 ### Vanilla JavaScript
 ```javascript
-import { skelly } from "use-skelly";
+import { skelly, learnLayout } from "use-skelly";
 
-const release = skelly(document.querySelector("#card"), {
-  visual: "shimmer"
-});
+const card = document.querySelector("#card");
+const release = skelly(card, { name: "card", visual: "shimmer" });
 
-// When done:
+// Once content is fetched and painted, drop the skeleton and learn the real layout.
 release();
+learnLayout(card, { name: "card" });
 ```
+
+The React adapter calls `learnLayout` for you when `loading` goes false. In vanilla, Vue and
+Svelte you call it yourself at the point the real content is on screen.
 
 ---
 
 ## 📄 License
 
-MIT © [Skelly Team](https://github.com/sidhanshumonga/use-skelly)
+MIT © [Sidhanshu Monga](https://github.com/sidhanshumonga)

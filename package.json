@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx tsc -p packages/skelly/tsconfig.json && mkdir -p packages/skelly/dist && cp packages/skelly/src/style.css packages/skelly/dist/style.css && next build",
+    "build": "npm run build:pkg --silent && next build",
     "start": "next start",
     "lint": "eslint",
-    "test:browser": "node test/serve.mjs"
+    "test:browser": "node test/serve.mjs",
+    "size": "npm run build:pkg --silent && node scripts/size.mjs",
+    "build:pkg": "npx tsc -p packages/skelly/tsconfig.json && mkdir -p packages/skelly/dist && cp packages/skelly/src/style.css packages/skelly/dist/style.css"
   },
   "dependencies": {
     "next": "16.2.10",
@@ -20,6 +22,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "svelte": "^5.56.4",

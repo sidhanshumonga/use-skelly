@@ -68,7 +68,7 @@
     "no-build-step",
     "suspense-fallback"
   ],
-  "author": "Skelly Team",
+  "author": "Sidhanshu Monga",
   "license": "MIT",
   "peerDependencies": {
     "react": ">=18.0.0",
