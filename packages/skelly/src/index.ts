@@ -14,13 +14,66 @@ export * from "./learn";
 
 export type PresetName = "dashboard" | "article" | "feed" | "profile" | "generic";
 
+/**
+ * Every option is optional. The common shape is `{ name, loading }` on a wrapper around
+ * your real content, or `{ preset }` where there is no markup to measure yet.
+ *
+ * @example Measured, and learned for next time
+ * skelly(cardEl, { name: "article-card" });
+ *
+ * @example A route fallback, where nothing has rendered to measure
+ * skelly(el, { preset: "dashboard" });
+ */
 export interface SkellyOptions extends LearnOptions {
+  /**
+   * The loading animation. Defaults to `"shimmer"`.
+   *
+   * - `"shimmer"` — gradient sweep across each shape
+   * - `"pulse"` — opacity fade, calmer on busy screens
+   * - `"optimistic"` — tinted bounds, for an action you expect to succeed
+   * - `"static"` — flat, no animation
+   *
+   * All of them collapse to a flat fill under `prefers-reduced-motion: reduce`.
+   */
   visual?: "shimmer" | "pulse" | "optimistic" | "static";
+  /**
+   * Number of text rows in the generic skeleton — the one used by `preset: "generic"`
+   * and as the fallback when a container has nothing measurable in it. A measured
+   * layout always derives its own line count from the real markup, so this does
+   * nothing there.
+   */
   rows?: number;
+  /**
+   * How image placeholders are filled. Defaults to `"block"`.
+   *
+   * - `"block"` — the same treatment as every other shape
+   * - `"dominant-color"` — uses `spec.color`, when the spec carries one
+   * - `"blurhash"` — a soft gradient derived from the `--skelly-*` tokens
+   */
   media?: "block" | "dominant-color" | "blurhash";
+  /**
+   * Render a built-in layout instead of measuring. Use this where there is no DOM to
+   * measure — a Next.js `loading.tsx`, a Suspense fallback, a first-ever visit.
+   * Presets need no measurement, so they render on the server.
+   */
   preset?: PresetName;
+  /**
+   * Render this exact layout, skipping measurement entirely. Usually a spec compiled
+   * earlier by `measureLayout()` or read back from `exportLearnedSpecs()`.
+   * Takes precedence over `preset` and over anything learned.
+   */
   spec?: SkellySpec[];
+  /**
+   * Force one border radius on every shape, e.g. `"8px"` or `"50%"`. By default each
+   * shape inherits the radius of the element it stands in for.
+   */
   radius?: string;
+  /**
+   * Compiled layouts are cached per container, keyed on its markup and measured box.
+   * Set `false` to re-measure on every mount. A spec is absolute pixel geometry, so
+   * call `clearSpecCache()` after anything that changes geometry without changing
+   * markup — a webfont landing, a theme swap, a container resize.
+   */
   cache?: boolean;
   /**
    * How structural parents (cards, panels, sections) are compiled.

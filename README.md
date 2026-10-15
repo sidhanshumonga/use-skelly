@@ -291,11 +291,33 @@ To serve your *own* layouts on a first visit rather than a built-in preset, see 
 
 ---
 
+## 🤖 For coding agents
+
+Working with an agent? There are three ways in, in order of how little effort they take:
+
+* **Paste a prompt** — [useskelly.dev/#agent](https://useskelly.dev/#agent) has a copyable
+  prompt that installs skelly, replaces the hand-written skeletons already in a codebase,
+  and deletes what it replaced.
+* **Point the agent at [`useskelly.dev/llms.txt`](https://useskelly.dev/llms.txt)** — the
+  whole working surface in one plain-text fetch.
+* **Let it read the package** — [`AGENTS.md`](./packages/skelly/AGENTS.md) ships inside the
+  npm tarball, so once installed it is readable at `node_modules/use-skelly/AGENTS.md`
+  with no network access at all.
+
+Every public option carries JSDoc, so an agent with a language server sees what each one
+does without leaving the editor.
+
+Agents working **on this repo** rather than with the library want [`AGENTS.md`](./AGENTS.md)
+at the root.
+
+---
+
 ## 📂 Project Monorepo Structure
 
 * [`/packages/skelly`](./packages/skelly): Main entry module containing Core, React, Vue, Svelte, Next, and CLI assets.
 * [`/src`](./src): Landing page, live benchmarks, and dynamic markdown documentation templates.
 * [`/test`](./test): Browser regression suite — `npm run test:browser`.
+* [`AGENTS.md`](./AGENTS.md): Repository guide for coding agents.
 
 ---
 

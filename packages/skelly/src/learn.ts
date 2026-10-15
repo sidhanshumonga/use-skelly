@@ -12,11 +12,30 @@ export interface SkellyStorage {
 }
 
 export interface LearnOptions {
-  /** Stable identity for a layout across mounts, routes and reloads. */
+  /**
+   * Stable identity for a layout across mounts, routes and reloads, e.g. `"article-card"`.
+   *
+   * Supplying one turns on learning: the real content is measured once it renders,
+   * stored per viewport bucket, and replayed the next time this layout is loading —
+   * including before the component has ever mounted, which is where a measured
+   * skeleton otherwise cannot help. Every successful render overwrites what was
+   * stored, so a learned layout cannot go stale.
+   *
+   * Without a name, each mount measures from scratch and nothing is remembered.
+   */
   name?: string;
-  /** Viewport widths that bucket a learned layout. Defaults to DEFAULT_BREAKPOINTS. */
+  /**
+   * Viewport widths that bucket a learned layout, so a layout learned on a desktop is
+   * never replayed on a phone. Defaults to `DEFAULT_BREAKPOINTS`
+   * (`[0, 480, 768, 1024, 1280, 1536]`). Each width learns itself on first visit.
+   */
   breakpoints?: number[];
-  /** Where learned layouts persist. Defaults to localStorage; `null` disables persistence. */
+  /**
+   * Where learned layouts persist. Defaults to `localStorage` under
+   * `skelly:learned:v2`, capped at 120 entries with the oldest evicted first.
+   * Pass any `Storage`-like object to use a different store, or `null` to keep
+   * layouts in memory for this page only. Nothing ever leaves the browser.
+   */
   storage?: SkellyStorage | null;
 }
 

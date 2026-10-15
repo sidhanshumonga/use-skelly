@@ -1,6 +1,6 @@
 {
   "name": "use-skelly",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Skeleton screens that learn your UI. Measured from your real DOM at runtime, then remembered \u2014 no build step, nothing to regenerate.",
   "repository": {
     "type": "git",
@@ -48,7 +48,8 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "AGENTS.md"
   ],
   "scripts": {
     "build": "tsc && cp src/style.css dist/style.css",
@@ -66,7 +67,12 @@
     "layout",
     "self-learning",
     "no-build-step",
-    "suspense-fallback"
+    "suspense-fallback",
+    "loading-state",
+    "skeleton-screen",
+    "agent-friendly",
+    "llms-txt",
+    "agents-md"
   ],
   "author": "Sidhanshu Monga",
   "license": "MIT",

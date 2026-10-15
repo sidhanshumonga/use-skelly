@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.3 - October 15, 2026
+### Readable By The Agents Doing The Work
+- [new] `AGENTS.md` ships inside the npm tarball, so once installed it is readable at `node_modules/use-skelly/AGENTS.md` with no network access. It covers install, the single wrapper pattern, migrating a codebase that already has hand-written skeletons, where measurement is impossible and a preset is required, the full entry-point and option surface, and the rules worth not getting wrong.
+- [improved] Every public option now carries JSDoc, so an agent or an editor with a language server sees what `visual`, `preset`, `media`, `rows`, `spec`, `radius`, `cache`, `name`, `breakpoints` and `storage` each do without leaving the file. Declarations went from 33 documented lines to 78. `SkellyOptions` and `SkellyProps` carry worked `@example` blocks.
+- [changed] `useskelly.dev/llms.txt` is now assembled from `packages/skelly/AGENTS.md` at build time rather than from a second copy in the route handler. The published guide and the one in the tarball cannot drift apart.
+- [new] A repository-level `AGENTS.md` for agents working on skelly itself: layout, commands, why measurement cannot be tested in jsdom, the changelog and branching conventions, and the three traps this codebase has already fallen into — inherited `visibility`, absolute-pixel specs across viewports, and `requestAnimationFrame` never firing in a background tab.
+- [improved] npm keywords extended for registry discovery; both READMEs point at the agent entry points.
+
 ## v0.4.2 - August 21, 2026
 ### Decoration Is Not Content
 - [fixed] Decorative elements were painted as skeleton shapes. A background orb, a glow or a hairline ring became a large shimmering circle sitting on top of the layout it was meant to sit behind — the "random circles" a skeleton should never have. Anything blurred is now skipped, as are `aria-hidden` and `role="presentation"` elements lifted out of flow with no text of their own. An `aria-hidden` icon sitting in flow beside a label is still measured as content.

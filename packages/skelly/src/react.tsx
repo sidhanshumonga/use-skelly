@@ -12,8 +12,26 @@ import {
   SkellySpec
 } from "./index";
 
+/**
+ * @example Measured and learned — the usual case
+ * <Skelly name="article-card" loading={isLoading}>
+ *   <ArticleCard data={data} />
+ * </Skelly>
+ *
+ * @example A route fallback, where the page it would measure has not rendered
+ * // app/dashboard/loading.tsx
+ * export default function Loading() {
+ *   return <Skelly preset="dashboard" />;
+ * }
+ */
 export interface SkellyProps extends SkellyOptions {
-  /** Defaults to `true` so `<Skelly />` works as a standalone Suspense/route fallback. */
+  /**
+   * Whether to show the skeleton. Defaults to `true`, so `<Skelly />` works as a
+   * standalone Suspense or route fallback with no state to wire up.
+   *
+   * Children always render either way — skelly hides them and paints over the top —
+   * so there is no second copy of the layout to keep in sync.
+   */
   loading?: boolean;
   /**
    * Stable identity for this layout. Give one and the skeleton learns: the real markup is

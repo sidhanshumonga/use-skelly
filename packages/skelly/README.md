@@ -258,6 +258,18 @@ Svelte you call it yourself at the point the real content is on screen.
 
 ---
 
+## 🤖 For coding agents
+
+[`AGENTS.md`](https://github.com/sidhanshumonga/use-skelly/blob/main/packages/skelly/AGENTS.md)
+ships inside this package — after installing, it is readable at
+`node_modules/use-skelly/AGENTS.md` with no network access. It covers install, the one
+wrapper pattern, migrating an existing codebase, and the rules worth not getting wrong.
+
+The same guide is served at [useskelly.dev/llms.txt](https://useskelly.dev/llms.txt), and
+there is a copyable setup prompt at [useskelly.dev/#agent](https://useskelly.dev/#agent).
+
+---
+
 ## 📄 License
 
 MIT © [Sidhanshu Monga](https://github.com/sidhanshumonga)
